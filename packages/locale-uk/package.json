@@ -1,6 +1,6 @@
 {
   "name": "@whenis/locale-uk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Ukrainian locale for whenis — full inflected lexicon (months, weekdays, pointers, connectors, time units) and locale-specific rules.",
   "keywords": [
     "date",
@@ -58,7 +58,7 @@
     "prepublishOnly": "pnpm build"
   },
   "peerDependencies": {
-    "@whenis/core": "^0.1.0"
+    "@whenis/core": "^0.1.1"
   },
   "devDependencies": {
     "@whenis/core": "workspace:*"
