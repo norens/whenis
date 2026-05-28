@@ -1,25 +1,74 @@
 {
   "name": "@whenis/booking",
   "version": "0.1.0",
+  "description": "Booking-domain plugin for whenis — search windows, stay durations, weekend semantics, holiday references, mostly-past month enricher.",
+  "keywords": [
+    "date",
+    "dates",
+    "booking",
+    "hospitality",
+    "travel",
+    "stay",
+    "reservation",
+    "plugin",
+    "nlp",
+    "natural-language",
+    "parser",
+    "whenis"
+  ],
+  "homepage": "https://github.com/norens/whenis/tree/main/packages/booking#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/norens/whenis.git",
+    "directory": "packages/booking"
+  },
+  "bugs": {
+    "url": "https://github.com/norens/whenis/issues"
+  },
+  "author": "Nazar Fedyshyn <me@nazarf.dev>",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     }
   },
-  "scripts": { "build": "tsup", "typecheck": "tsc --noEmit" },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm build"
+  },
+  "peerDependencies": {
+    "@whenis/core": "^0.1.0"
+  },
   "dependencies": {
-    "@whenis/core": "workspace:*",
     "luxon": "^3.5.0"
   },
   "devDependencies": {
     "@types/luxon": "^3.4.0",
-    "@whenis/locale-uk": "workspace:*"
+    "@whenis/core": "workspace:*"
   },
-  "license": "MIT"
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
 }

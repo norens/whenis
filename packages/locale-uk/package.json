@@ -1,19 +1,70 @@
 {
   "name": "@whenis/locale-uk",
   "version": "0.1.0",
+  "description": "Ukrainian locale for whenis — full inflected lexicon (months, weekdays, pointers, connectors, time units) and locale-specific rules.",
+  "keywords": [
+    "date",
+    "dates",
+    "ukrainian",
+    "ukraine",
+    "ua",
+    "uk",
+    "locale",
+    "i18n",
+    "nlp",
+    "natural-language",
+    "parser",
+    "whenis"
+  ],
+  "homepage": "https://github.com/norens/whenis/tree/main/packages/locale-uk#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/norens/whenis.git",
+    "directory": "packages/locale-uk"
+  },
+  "bugs": {
+    "url": "https://github.com/norens/whenis/issues"
+  },
+  "author": "Nazar Fedyshyn <me@nazarf.dev>",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     }
   },
-  "scripts": { "build": "tsup", "typecheck": "tsc --noEmit" },
-  "dependencies": { "@whenis/core": "workspace:*" },
-  "devDependencies": { "@whenis/booking": "workspace:*" },
-  "license": "MIT"
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm build"
+  },
+  "peerDependencies": {
+    "@whenis/core": "^0.1.0"
+  },
+  "devDependencies": {
+    "@whenis/core": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
 }

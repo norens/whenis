@@ -4,3 +4,10 @@ dist/
 .DS_Store
 coverage/
 .vitest-cache/
+
+# Internal design docs — not published
+docs/
+
+# IDEs
+.idea/
+.vscode/

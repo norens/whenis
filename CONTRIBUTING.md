@@ -1,0 +1,86 @@
+# Contributing to whenis
+
+Thanks for your interest. This repo is a pnpm-workspaces monorepo with four
+published packages under `@whenis/*`.
+
+## Prerequisites
+
+- Node ≥ 18 (CI matrix: 18 / 20 / 22)
+- pnpm ≥ 9 — `corepack enable && corepack prepare pnpm@9 --activate`
+
+## Local setup
+
+```bash
+pnpm install
+pnpm -r build
+pnpm test
+```
+
+The test suite includes golden corpora at `packages/locale-*/test/corpus.test.ts`
+— each line is a `{ input, reference, expected }` triple parsed end-to-end.
+
+## Adding a rule
+
+1. Find the closest existing rule in the relevant locale (e.g.
+   `packages/locale-uk/src/rules.ts`).
+2. Add the pattern + `produce` function. Patterns match tokens (by `Tag.kind`)
+   or previously emitted IR nodes (by `IRNode.type`).
+3. Add a corpus entry for every shape you intend to support — including the
+   ones that should NOT match (negative cases).
+4. Run `pnpm test --filter @whenis/locale-uk`.
+
+## Adding a locale
+
+A locale is pure data plus an array of rules. See
+[`packages/locale-en/src/index.ts`](./packages/locale-en/src/index.ts) for the
+minimum surface.
+
+```ts
+import type { Locale } from '@whenis/core';
+
+export const xx: Locale = {
+  code: 'xx',
+  dateOrder: 'DMY',
+  weekStart: 'mon',
+  preprocess: [s => s.toLowerCase()],
+  lexicon: new Map([ /* string → Tag[] */ ]),
+  stems: [ /* [RegExp, Tag[]] */ ],
+  rules: [ /* Rule[] */ ],
+  defaults: { preferFuture: true },
+};
+```
+
+No core changes required. Open a separate package under `packages/locale-xx/`
+following the existing pattern.
+
+## Versioning and releases
+
+We use [changesets](https://github.com/changesets/changesets). The four
+`@whenis/*` packages are **fixed-versioned** — they bump together so users
+never see a `@whenis/locale-uk@0.3` that requires a `@whenis/core@0.2` you
+haven't installed.
+
+For every user-visible change:
+
+```bash
+pnpm changeset
+```
+
+Pick the affected packages, the bump type (`patch` / `minor` / `major`) and
+write a short summary that will land in `CHANGELOG.md`. Commit the file under
+`.changeset/`.
+
+When PRs with changesets merge to `main`, the release workflow opens a
+"Version Packages" PR. Merging that PR publishes to npm via OIDC trusted
+publishing — no `NPM_TOKEN` involved.
+
+## Style
+
+- Strict TypeScript everywhere; no `any`.
+- Pure functions per layer (tokenizer, rule engine, resolver). No globals.
+- Tests use `vitest`. Corpus tests for parser behaviour; unit tests for rule
+  internals when complex.
+
+## License
+
+By contributing you agree your work ships under the project [MIT](./LICENSE).
