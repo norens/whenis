@@ -1,0 +1,6 @@
+{"input":"today","reference":"2026-05-28","expected_date":"2026-05-28"}
+{"input":"tomorrow","reference":"2026-05-28","expected_date":"2026-05-29"}
+{"input":"yesterday","reference":"2026-05-28","expected_date":"2026-05-27"}
+{"input":"next friday","reference":"2026-05-28","expected_date":"2026-06-05"}
+{"input":"2026-06-05","reference":"2026-05-28","expected_date":"2026-06-05"}
+{"input":"3 days","reference":"2026-05-28","expected_duration":3}
