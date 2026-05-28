@@ -1,7 +1,7 @@
 # @whenis/locale-uk
 
-[![npm](https://img.shields.io/npm/v/@whenis/locale-uk?color=cb3837)](https://www.npmjs.com/package/@whenis/locale-uk)
-[![license](https://img.shields.io/npm/l/@whenis/locale-uk?color=blue)](./LICENSE)
+[![npm](https://img.shields.io/npm/v/@whenis/locale-uk)](https://www.npmjs.com/package/@whenis/locale-uk)
+[![license](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
 
 Ukrainian locale for [whenis](https://github.com/norens/whenis).
 

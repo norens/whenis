@@ -1,7 +1,7 @@
 # @whenis/booking
 
-[![npm](https://img.shields.io/npm/v/@whenis/booking?color=cb3837)](https://www.npmjs.com/package/@whenis/booking)
-[![license](https://img.shields.io/npm/l/@whenis/booking?color=blue)](./LICENSE)
+[![npm](https://img.shields.io/npm/v/@whenis/booking)](https://www.npmjs.com/package/@whenis/booking)
+[![license](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
 
 Booking-domain plugin for [whenis](https://github.com/norens/whenis).
 

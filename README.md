@@ -5,8 +5,8 @@
 **Natural-language date parsing for TypeScript — Ukrainian-first, plugin-extensible.**
 
 [![CI](https://github.com/norens/whenis/actions/workflows/ci.yml/badge.svg)](https://github.com/norens/whenis/actions/workflows/ci.yml)
-[![npm (@whenis/core)](https://img.shields.io/npm/v/@whenis/core?label=%40whenis%2Fcore&color=cb3837)](https://www.npmjs.com/package/@whenis/core)
-[![license](https://img.shields.io/npm/l/@whenis/core?color=blue)](./LICENSE)
+[![npm](https://img.shields.io/npm/v/@whenis/core?label=%40whenis%2Fcore)](https://www.npmjs.com/package/@whenis/core)
+[![license](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
 [![types](https://img.shields.io/npm/types/@whenis/core)](https://www.typescriptlang.org/)
 [![node](https://img.shields.io/node/v/@whenis/core)](https://nodejs.org/)
 

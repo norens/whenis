@@ -1,7 +1,7 @@
 # @whenis/core
 
-[![npm](https://img.shields.io/npm/v/@whenis/core?color=cb3837)](https://www.npmjs.com/package/@whenis/core)
-[![license](https://img.shields.io/npm/l/@whenis/core?color=blue)](./LICENSE)
+[![npm](https://img.shields.io/npm/v/@whenis/core)](https://www.npmjs.com/package/@whenis/core)
+[![license](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
 [![types](https://img.shields.io/npm/types/@whenis/core)](https://www.typescriptlang.org/)
 
 Engine for [whenis](https://github.com/norens/whenis) — a TypeScript natural-language date parser.

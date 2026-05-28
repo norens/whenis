@@ -1,7 +1,7 @@
 # @whenis/locale-en
 
-[![npm](https://img.shields.io/npm/v/@whenis/locale-en?color=cb3837)](https://www.npmjs.com/package/@whenis/locale-en)
-[![license](https://img.shields.io/npm/l/@whenis/locale-en?color=blue)](./LICENSE)
+[![npm](https://img.shields.io/npm/v/@whenis/locale-en)](https://www.npmjs.com/package/@whenis/locale-en)
+[![license](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
 
 English locale for [whenis](https://github.com/norens/whenis).
 
