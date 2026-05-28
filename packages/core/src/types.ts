@@ -22,7 +22,7 @@ export interface ResolvedDate {
   start?: string;
   end?: string;
   nights?: number;
-  granularity?: 'day' | 'month' | 'year';
+  granularity?: 'day' | 'month' | 'year' | 'season';
   reason?: string;
   metadata?: Record<string, unknown>;
 }
