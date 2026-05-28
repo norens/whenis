@@ -54,6 +54,7 @@ const entries: Array<[string, Tag[]]> = [
   ['наступного',  [{ kind: 'Grabber', modifier: 'next' }]],
   ['наступної',   [{ kind: 'Grabber', modifier: 'next' }]],
   ['наступну',    [{ kind: 'Grabber', modifier: 'next' }]],
+  ['наступні',    [{ kind: 'Grabber', modifier: 'next' }]],
   ['минулий',     [{ kind: 'Grabber', modifier: 'last' }]],
   ['минула',      [{ kind: 'Grabber', modifier: 'last' }]],
   ['минулого',    [{ kind: 'Grabber', modifier: 'last' }]],

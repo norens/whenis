@@ -31,3 +31,25 @@ describe('@whenis/booking', () => {
     expect(r.matches[0]!.candidates[0]!.nights).toBe(3);
   });
 });
+
+describe('@whenis/booking — extended', () => {
+  const parser = createParser({ locales: [uk], plugins: [booking] });
+  const REF_NEAR_MONTH_END = new Date('2026-05-27T00:00:00.000Z'); // Wed, 4 days left in May
+
+  it("'наступні вихідні' → range Sat+Sun next ISO week", () => {
+    const r = parser.parse('наступні вихідні', { reference: REF_NEAR_MONTH_END, timezone: 'UTC' });
+    expect(r.matches[0]!.candidates[0]!.start).toBe('2026-06-06');
+    expect(r.matches[0]!.candidates[0]!.end).toBe('2026-06-07');
+  });
+
+  it("'після свят' → fuzzy with reason=holiday_ref", () => {
+    const r = parser.parse('після свят', { reference: REF_NEAR_MONTH_END, timezone: 'UTC' });
+    expect(r.matches[0]!.candidates[0]!.type).toBe('fuzzy');
+    expect(r.matches[0]!.candidates[0]!.reason).toBe('holiday_ref');
+  });
+
+  it("mostly-past enricher does NOT add suggest_next_month to non-fuzzy candidates", () => {
+    const r = parser.parse('завтра', { reference: REF_NEAR_MONTH_END, timezone: 'UTC' });
+    expect(r.matches[0]!.candidates[0]!.metadata?.suggest_next_month).toBeUndefined();
+  });
+});
