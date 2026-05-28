@@ -39,14 +39,14 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      - name: Build
+        run: pnpm -r build
+
       - name: Typecheck
         run: pnpm -r typecheck
 
       - name: Test
         run: pnpm test
-
-      - name: Build
-        run: pnpm -r build
 
       - name: Create Release PR or Publish
         uses: changesets/action@v1
