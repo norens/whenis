@@ -1,5 +1,6 @@
 import type { Locale } from '@whenis/core';
 import { ukLexicon, ukStems } from './lexicon';
+import { ukRules } from './rules';
 
 function normalizeApostrophes(s: string): string {
   return s.replace(/['ʼʹ′´`]/g, "'");
@@ -12,6 +13,6 @@ export const uk: Locale = {
   preprocess: [(s) => s.toLowerCase(), normalizeApostrophes],
   lexicon: ukLexicon,
   stems: ukStems,
-  rules: [], // populated in Task 10
+  rules: ukRules,
   defaults: { preferFuture: true },
 };
