@@ -7,6 +7,7 @@ export type Tag =
   | { kind: 'Pointer';     direction: 'past' | 'future' | 'this' }
   | { kind: 'Grabber';     modifier: 'next' | 'last' | 'nearest' | 'in' | 'ago' | 'within' | 'until' }
   | { kind: 'Connector';   conn: 'from' | 'to' | 'through' | 'between' | 'and' }
+  | { kind: 'VagueMarker'; strength: 'soft' | 'strong' }
   | { kind: 'Literal';     text: string };
 
 export interface Token {

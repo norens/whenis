@@ -138,6 +138,12 @@ const entries: Array<[string, Tag[]]> = [
   ["п'ятнадцять",   [{ kind: 'Numeral', value: 15 }]],
   ['двадцять',      [{ kind: 'Numeral', value: 20 }]],
   ['тридцять',      [{ kind: 'Numeral', value: 30 }]],
+
+  // Vague qualifiers — used by vagueMonthRule and vagueQualifiedRule (v0.3).
+  ['приблизно',     [{ kind: 'VagueMarker', strength: 'soft' }]],
+  ['десь',          [{ kind: 'VagueMarker', strength: 'soft' }]],
+  ['можливо',       [{ kind: 'VagueMarker', strength: 'strong' }]],
+  ['колись',        [{ kind: 'VagueMarker', strength: 'strong' }]],
 ];
 
 export const ukLexicon = new Map(entries);
