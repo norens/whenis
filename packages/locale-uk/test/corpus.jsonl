@@ -26,7 +26,7 @@
 {"input":"впродовж наступних 3 днів","reference":"2026-05-28","expected_window":{"start":"2026-05-28","end":"2026-05-30"}}
 {"input":"до кінця тижня","reference":"2026-05-28","expected_window":{"start":"2026-05-28","end":"2026-05-31"}}
 {"input":"до кінця місяця","reference":"2026-05-28","expected_window":{"start":"2026-05-28","end":"2026-05-31"}}
-{"input":"2025-12-01","reference":"2026-05-28","expected_date":"2025-12-01","expected_reason":"past_iso"}
+{"input":"2025-12-01","reference":"2026-05-28","expected_date":"2025-12-01","expected_reason":"past_date"}
 {"input":"5 червня на 2 ночі","reference":"2026-05-28","expected_range":{"start":"2026-06-05","end":"2026-06-07","nights":2}}
 {"input":"з 5 червня на 3 ночі","reference":"2026-05-28","expected_range":{"start":"2026-06-05","end":"2026-06-08","nights":3}}
 {"input":"останні вихідні","reference":"2026-05-28","expected_range":{"start":"2026-05-30","end":"2026-05-31"}}
@@ -36,7 +36,7 @@
 {"input":"останні вихідні у травні","reference":"2026-04-29","expected_range":{"start":"2026-05-30","end":"2026-05-31"}}
 {"input":"15.07","reference":"2026-05-28","expected_date":"2026-07-15"}
 {"input":"15.03","reference":"2026-05-28","expected_date":"2027-03-15"}
-{"input":"12.06.2025","reference":"2026-05-28","expected_date":"2025-06-12","expected_reason":"past_iso"}
+{"input":"12.06.2025","reference":"2026-05-28","expected_date":"2025-06-12","expected_reason":"past_date"}
 {"input":"12.06-22.06","reference":"2026-05-28","expected_range":{"start":"2026-06-12","end":"2026-06-22","nights":10}}
 {"input":"десь у травні","reference":"2026-04-29","expected_reason":"vague_month"}
 {"input":"колись у червні","reference":"2026-04-29","expected_reason":"vague_month"}

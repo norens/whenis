@@ -8,14 +8,14 @@ export function resolve(node: IRNode, ctx: ResolverCtx): ResolvedDate[] {
     case 'absolute': {
       const date = resolveAbsolute(node, ctx);
       if (!date) return [{ confidence: 0, type: 'fuzzy', reason: 'invalid_absolute' }];
-      // Signal past-ISO: when caller gave an explicit year+month+day and the
-      // resolved date is before the reference, attach reason='past_iso' so the
+      // Signal past-date: when caller gave an explicit year+month+day and the
+      // resolved date is before the reference, attach reason='past_date' so the
       // caller (e.g. booking adapter) can decide to roll forward or flag.
       if (node.year !== undefined && node.month !== undefined && node.day !== undefined) {
         const ref = DateTime.fromJSDate(ctx.reference, { zone: ctx.timezone }).startOf('day');
         const resolvedDt = DateTime.fromISO(date, { zone: ctx.timezone });
         if (resolvedDt < ref) {
-          return [{ confidence: 1, type: 'date', date, granularity: 'day', reason: 'past_iso' }];
+          return [{ confidence: 1, type: 'date', date, granularity: 'day', reason: 'past_date' }];
         }
       }
       return [{ confidence: 1, type: 'date', date, granularity: 'day' }];
