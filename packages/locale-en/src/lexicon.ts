@@ -42,6 +42,9 @@ const entries: Array<[string, Tag[]]> = [
   ['weeks',     [{ kind: 'TimeUnit', unit: 'week' }]],
   ['month',     [{ kind: 'TimeUnit', unit: 'month' }]],
   ['months',    [{ kind: 'TimeUnit', unit: 'month' }]],
+  // Weekend
+  ['weekend',   [{ kind: 'Literal', text: '__weekend__' }]],
+  ['weekends',  [{ kind: 'Literal', text: '__weekend__' }]],
   // Immediate
   ['today',     [{ kind: 'Literal', text: '__today__' }]],
   ['tomorrow',  [{ kind: 'Literal', text: '__tomorrow__' }]],

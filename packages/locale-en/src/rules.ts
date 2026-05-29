@@ -51,4 +51,49 @@ export const thisWeekdayRule: Rule = {
   },
 };
 
-export const enRules: Rule[] = [todayRule, tomorrowRule, yesterdayRule, nextWeekdayRule, thisWeekdayRule];
+export const thisWeekendRule: Rule = {
+  name: 'en-this-weekend',
+  priority: 75,
+  pattern: [
+    { kind: 'tag', tag: 'Pointer', predicate: (t) => t.tags.some(x => x.kind === 'Pointer' && x.direction === 'this') },
+    { kind: 'tag', tag: 'Literal', predicate: (t) => t.tags.some(x => x.kind === 'Literal' && x.text === '__weekend__') },
+  ],
+  produce: () => ({
+    type: 'range',
+    start: { type: 'weekday', weekday: 6, modifier: 'this' },
+    end:   { type: 'weekday', weekday: 7, modifier: 'this' },
+    convention: 'checkout',
+  }),
+};
+
+export const nextWeekendRule: Rule = {
+  name: 'en-next-weekend',
+  priority: 75,
+  pattern: [
+    { kind: 'tag', tag: 'Grabber', predicate: (t) => t.tags.some(x => x.kind === 'Grabber' && x.modifier === 'next') },
+    { kind: 'tag', tag: 'Literal', predicate: (t) => t.tags.some(x => x.kind === 'Literal' && x.text === '__weekend__') },
+  ],
+  produce: () => ({
+    type: 'range',
+    start: { type: 'weekday', weekday: 6, modifier: 'next' },
+    end:   { type: 'weekday', weekday: 7, modifier: 'next' },
+    convention: 'checkout',
+  }),
+};
+
+export const lastWeekendRule: Rule = {
+  name: 'en-last-weekend',
+  priority: 75,
+  pattern: [
+    { kind: 'tag', tag: 'Grabber', predicate: (t) => t.tags.some(x => x.kind === 'Grabber' && x.modifier === 'last') },
+    { kind: 'tag', tag: 'Literal', predicate: (t) => t.tags.some(x => x.kind === 'Literal' && x.text === '__weekend__') },
+  ],
+  produce: () => ({
+    type: 'range',
+    start: { type: 'weekday', weekday: 6, modifier: 'last' },
+    end:   { type: 'weekday', weekday: 7, modifier: 'last' },
+    convention: 'checkout',
+  }),
+};
+
+export const enRules: Rule[] = [todayRule, tomorrowRule, yesterdayRule, nextWeekdayRule, thisWeekdayRule, thisWeekendRule, nextWeekendRule, lastWeekendRule];

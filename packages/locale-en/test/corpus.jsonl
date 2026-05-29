@@ -4,3 +4,6 @@
 {"input":"next friday","reference":"2026-05-28","expected_date":"2026-06-05"}
 {"input":"2026-06-05","reference":"2026-05-28","expected_date":"2026-06-05"}
 {"input":"3 days","reference":"2026-05-28","expected_duration":3}
+{"input":"this weekend","reference":"2026-04-29","expected_range":{"start":"2026-05-02","end":"2026-05-03"}}
+{"input":"next weekend","reference":"2026-04-29","expected_range":{"start":"2026-05-09","end":"2026-05-10"}}
+{"input":"last weekend","reference":"2026-04-29","expected_range":{"start":"2026-04-25","end":"2026-04-26"}}
