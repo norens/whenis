@@ -6,6 +6,7 @@ export type IRNode =
   | { type: 'window';     from: IRNode; to: IRNode }
   | { type: 'range';      start: IRNode; end: IRNode; convention: 'checkout' | 'inclusive' }
   | { type: 'fuzzy';      granularity: 'month' | 'season' | 'year'; ref: IRNode; reason: string }
+  | { type: 'boundary';   unit: 'week' | 'month' | 'year'; edge: 'start' | 'end' }
   | { type: 'unresolved'; reason: string };
 
 export interface IRSpan {

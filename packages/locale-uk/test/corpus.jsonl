@@ -24,3 +24,6 @@
 {"input":"через тиждень","reference":"2026-05-28","expected_date":"2026-06-04"}
 {"input":"через місяць","reference":"2026-05-28","expected_date":"2026-06-28"}
 {"input":"впродовж наступних 3 днів","reference":"2026-05-28","expected_window":{"start":"2026-05-28","end":"2026-05-30"}}
+{"input":"до кінця тижня","reference":"2026-05-28","expected_window":{"start":"2026-05-28","end":"2026-05-31"}}
+{"input":"до кінця місяця","reference":"2026-05-28","expected_window":{"start":"2026-05-28","end":"2026-05-31"}}
+{"input":"2025-12-01","reference":"2026-05-28","expected_date":"2025-12-01","expected_reason":"past_iso"}

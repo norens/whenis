@@ -8,6 +8,16 @@ export function resolve(node: IRNode, ctx: ResolverCtx): ResolvedDate[] {
     case 'absolute': {
       const date = resolveAbsolute(node, ctx);
       if (!date) return [{ confidence: 0, type: 'fuzzy', reason: 'invalid_absolute' }];
+      // Signal past-ISO: when caller gave an explicit year+month+day and the
+      // resolved date is before the reference, attach reason='past_iso' so the
+      // caller (e.g. booking adapter) can decide to roll forward or flag.
+      if (node.year !== undefined && node.month !== undefined && node.day !== undefined) {
+        const ref = DateTime.fromJSDate(ctx.reference, { zone: ctx.timezone }).startOf('day');
+        const resolvedDt = DateTime.fromISO(date, { zone: ctx.timezone });
+        if (resolvedDt < ref) {
+          return [{ confidence: 1, type: 'date', date, granularity: 'day', reason: 'past_iso' }];
+        }
+      }
       return [{ confidence: 1, type: 'date', date, granularity: 'day' }];
     }
     case 'weekday':
@@ -24,7 +34,15 @@ export function resolve(node: IRNode, ctx: ResolverCtx): ResolvedDate[] {
       return [{ confidence: 0, type: 'fuzzy', reason: node.reason }];
     case 'relative':
       return resolveRelative(node, ctx);
+    case 'boundary':
+      return resolveBoundary(node, ctx);
   }
+}
+
+function resolveBoundary(node: Extract<IRNode, { type: 'boundary' }>, ctx: ResolverCtx): ResolvedDate[] {
+  const ref = DateTime.fromJSDate(ctx.reference, { zone: ctx.timezone });
+  const dt = node.edge === 'start' ? ref.startOf(node.unit) : ref.endOf(node.unit);
+  return [{ confidence: 1, type: 'date', date: dt.toISODate()!, granularity: 'day' }];
 }
 
 function resolveAbsolute(node: Extract<IRNode, { type: 'absolute' }>, ctx: ResolverCtx): string | null {
