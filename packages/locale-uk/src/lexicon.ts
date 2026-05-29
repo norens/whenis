@@ -55,6 +55,9 @@ const entries: Array<[string, Tag[]]> = [
   ['наступної',   [{ kind: 'Grabber', modifier: 'next' }]],
   ['наступну',    [{ kind: 'Grabber', modifier: 'next' }]],
   ['наступні',    [{ kind: 'Grabber', modifier: 'next' }]],
+  ['наступних',   [{ kind: 'Grabber', modifier: 'next' }]],
+  ['наступним',   [{ kind: 'Grabber', modifier: 'next' }]],
+  ['наступними',  [{ kind: 'Grabber', modifier: 'next' }]],
   ['минулий',     [{ kind: 'Grabber', modifier: 'last' }]],
   ['минула',      [{ kind: 'Grabber', modifier: 'last' }]],
   ['минулого',    [{ kind: 'Grabber', modifier: 'last' }]],
@@ -64,6 +67,9 @@ const entries: Array<[string, Tag[]]> = [
   ['цю',          [{ kind: 'Pointer', direction: 'this' }]],
   ['цього',       [{ kind: 'Pointer', direction: 'this' }]],
   ['цієї',        [{ kind: 'Pointer', direction: 'this' }]],
+  ['ці',          [{ kind: 'Pointer', direction: 'this' }]],
+  ['цих',         [{ kind: 'Pointer', direction: 'this' }]],
+  ['цими',        [{ kind: 'Pointer', direction: 'this' }]],
   ['через',       [{ kind: 'Grabber', modifier: 'in' }]],
 
   // Connectors

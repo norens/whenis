@@ -20,3 +20,7 @@
 {"input":"позавтра","reference":"2026-05-28","expected_date":"2026-05-30"}
 {"input":"25 травня 2026 р.","reference":"2026-01-01","expected_date":"2026-05-25"}
 {"input":"25 травня 2026 року","reference":"2026-01-01","expected_date":"2026-05-25"}
+{"input":"ці вихідні","reference":"2026-05-28","expected_range":{"start":"2026-05-30","end":"2026-05-31"}}
+{"input":"через тиждень","reference":"2026-05-28","expected_date":"2026-06-04"}
+{"input":"через місяць","reference":"2026-05-28","expected_date":"2026-06-28"}
+{"input":"впродовж наступних 3 днів","reference":"2026-05-28","expected_window":{"start":"2026-05-28","end":"2026-05-30"}}
