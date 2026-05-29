@@ -17,6 +17,10 @@ interface CorpusEntry {
   expected_window?: { start: string; end: string };
   expected_duration?: number;
   expected_reason?: string;
+  expected_confidence_lt?: number;
+  expected_confidence_gte?: number;
+  expected_metadata?: Record<string, unknown>;
+  expected_metadata_absent?: string;
 }
 
 const corpusPath = resolvePath(__dirname, 'corpus.jsonl');
@@ -51,6 +55,18 @@ describe.each(entries)('corpus: $input (ref $reference)', (entry) => {
     }
     if (entry.expected_reason) {
       expect(top.reason).toBe(entry.expected_reason);
+    }
+    if (entry.expected_confidence_lt !== undefined) {
+      expect(top.confidence).toBeLessThan(entry.expected_confidence_lt);
+    }
+    if (entry.expected_confidence_gte !== undefined) {
+      expect(top.confidence).toBeGreaterThanOrEqual(entry.expected_confidence_gte);
+    }
+    if (entry.expected_metadata !== undefined) {
+      expect(top.metadata).toMatchObject(entry.expected_metadata);
+    }
+    if (entry.expected_metadata_absent !== undefined) {
+      expect(top.metadata?.[entry.expected_metadata_absent]).toBeUndefined();
     }
   });
 });

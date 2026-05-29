@@ -74,6 +74,35 @@ When PRs with changesets merge to `main`, the release workflow opens a
 "Version Packages" PR. Merging that PR publishes to npm via OIDC trusted
 publishing — no `NPM_TOKEN` involved.
 
+## Design notes
+
+### Reason vocabulary on ResolvedDate
+
+The `ResolvedDate.reason` string communicates *why* the parser produced a
+particular candidate. Stable names:
+
+- `past_date` — an absolute date in the past (ISO or DD.MM.YYYY with explicit
+  year). The resolver still emits the date with `confidence: 1`; the reason
+  signals to callers that they may want to refuse rather than schedule. v0.3
+  renamed this from `past_iso` because the same string now covers DD.MM.YYYY
+  fixed-year past dates too.
+- `vague_month` — a month-granularity fuzzy match (e.g. `десь у травні`),
+  emitted by locale rules over a `VagueMarker + Connector:in + MonthName`
+  pattern. `granularity: 'month'`, `confidence: 0.3`; the `mostlyPastEnricher`
+  may attach `metadata.suggest_next_month` when the named month is the
+  current month and ≥75% elapsed.
+- `vague_qualified` — a confident inner read (date/weekday/range) wrapped by
+  a vague marker (`приблизно`, `можливо`). Emitted as TWO candidates: the
+  inner reading downgraded to 40% of its original confidence + a fuzzy candidate at 0. Callers
+  who want "refuse on vagueness" filter `confidence < 0.5`; callers who want
+  the literal reading take the top candidate.
+- `this_week_past_fallback_next` — `цю п'ятницю` from a day when this week's
+  Friday has already passed. The resolver falls forward to next week's same
+  weekday with `confidence: 0.6`. NOT the same as `past_date`; it is a
+  helpful-fallback signal.
+- `holiday_ref` — emitted only by application adapters (whenis does not ship
+  a holiday calendar).
+
 ## Style
 
 - Strict TypeScript everywhere; no `any`.

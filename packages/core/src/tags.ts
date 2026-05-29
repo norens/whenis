@@ -6,7 +6,8 @@ export type Tag =
   | { kind: 'TimeUnit';    unit: 'day' | 'week' | 'month' | 'year' | 'night' }
   | { kind: 'Pointer';     direction: 'past' | 'future' | 'this' }
   | { kind: 'Grabber';     modifier: 'next' | 'last' | 'nearest' | 'in' | 'ago' | 'within' | 'until' }
-  | { kind: 'Connector';   conn: 'from' | 'to' | 'through' | 'between' | 'and' }
+  | { kind: 'Connector';   conn: 'from' | 'to' | 'through' | 'between' | 'and' | 'in' }
+  | { kind: 'VagueMarker'; strength: 'soft' | 'strong' }
   | { kind: 'Literal';     text: string };
 
 export interface Token {
@@ -14,4 +15,6 @@ export interface Token {
   start: number;
   end: number;
   tags: Tag[];
+  /** Set by tokenizer when the source Locale is a merged one. Undefined for single-locale parsers. */
+  sourceLocale?: string;
 }

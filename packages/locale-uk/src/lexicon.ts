@@ -77,6 +77,15 @@ const entries: Array<[string, Tag[]]> = [
   ['цих',         [{ kind: 'Pointer', direction: 'this' }]],
   ['цими',        [{ kind: 'Pointer', direction: 'this' }]],
   ['через',       [{ kind: 'Grabber', modifier: 'in' }]],
+  // найближч* forms: plurals also carry Grabber:within to stay compatible with
+  // the booking plugin's "у найближчі N днів" window rule (booking lexicon would
+  // add only `within`, locale overrides take precedence, so we include both).
+  ['найближчі',   [{ kind: 'Grabber', modifier: 'nearest' }, { kind: 'Grabber', modifier: 'within' }]],
+  ['найближчих',  [{ kind: 'Grabber', modifier: 'nearest' }, { kind: 'Grabber', modifier: 'within' }]],
+  ['найближчу',   [{ kind: 'Grabber', modifier: 'nearest' }]],
+  ['найближчий',  [{ kind: 'Grabber', modifier: 'nearest' }]],
+  ['найближчого', [{ kind: 'Grabber', modifier: 'nearest' }]],
+  ['найближчою',  [{ kind: 'Grabber', modifier: 'nearest' }]],
 
   // Connectors
   ['з',           [{ kind: 'Connector', conn: 'from' }]],
@@ -85,6 +94,8 @@ const entries: Array<[string, Tag[]]> = [
   ['по',          [{ kind: 'Connector', conn: 'through' }]],
   ['між',         [{ kind: 'Connector', conn: 'between' }]],
   ['і',           [{ kind: 'Connector', conn: 'and' }]],
+  ['в',           [{ kind: 'Connector', conn: 'in' }]],
+  ['у',           [{ kind: 'Connector', conn: 'in' }]],
 
   // Time units
   ['день',  [{ kind: 'TimeUnit', unit: 'day' }]],
@@ -138,6 +149,12 @@ const entries: Array<[string, Tag[]]> = [
   ["п'ятнадцять",   [{ kind: 'Numeral', value: 15 }]],
   ['двадцять',      [{ kind: 'Numeral', value: 20 }]],
   ['тридцять',      [{ kind: 'Numeral', value: 30 }]],
+
+  // Vague qualifiers — used by vagueMonthRule and vagueQualifiedRule (v0.3).
+  ['приблизно',     [{ kind: 'VagueMarker', strength: 'soft' }]],
+  ['десь',          [{ kind: 'VagueMarker', strength: 'soft' }]],
+  ['можливо',       [{ kind: 'VagueMarker', strength: 'strong' }]],
+  ['колись',        [{ kind: 'VagueMarker', strength: 'strong' }]],
 ];
 
 export const ukLexicon = new Map(entries);
@@ -156,4 +173,19 @@ export const ukStems: Array<[RegExp, Tag[]]> = [
   [/^жовтн/, [{ kind: 'MonthName', month: 10 }]],
   [/^листопад/, [{ kind: 'MonthName', month: 11 }]],
   [/^грудн/, [{ kind: 'MonthName', month: 12 }]],
+  [/^найближч/u, [{ kind: 'Grabber', modifier: 'nearest' }]],
+  // Ordinal day-of-month, genitive 1-10
+  [/^першо?г?о?$/u,    [{ kind: 'Ordinal', value: 1 }]],
+  [/^друго?г?о?$/u,    [{ kind: 'Ordinal', value: 2 }]],
+  [/^третьо?г?о?$/u,   [{ kind: 'Ordinal', value: 3 }]],
+  [/^четверто?г?о?$/u, [{ kind: 'Ordinal', value: 4 }]],
+  [/^п'ято?г?о?$/u,    [{ kind: 'Ordinal', value: 5 }]],
+  [/^шосто?г?о?$/u,    [{ kind: 'Ordinal', value: 6 }]],
+  [/^сьомо?г?о?$/u,    [{ kind: 'Ordinal', value: 7 }]],
+  [/^восьмо?г?о?$/u,   [{ kind: 'Ordinal', value: 8 }]],
+  [/^дев'ято?г?о?$/u,  [{ kind: 'Ordinal', value: 9 }]],
+  [/^десято?г?о?$/u,   [{ kind: 'Ordinal', value: 10 }]],
+  // Tens ordinals (genitive)
+  [/^двадцято?г?о?$/u, [{ kind: 'Ordinal', value: 20 }]],
+  [/^тридцято?г?о?$/u, [{ kind: 'Ordinal', value: 30 }]],
 ];

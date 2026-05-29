@@ -44,6 +44,20 @@ export const ukNextWeekdayRule: Rule = {
   },
 };
 
+export const ukNearestWeekdayRule: Rule = {
+  name: 'uk-nearest-weekday',
+  priority: 70,
+  pattern: [
+    { kind: 'tag', tag: 'Grabber', predicate: (t) => t.tags.some(x => x.kind === 'Grabber' && x.modifier === 'nearest') },
+    { kind: 'tag', tag: 'WeekdayName' },
+  ],
+  produce: (matched) => {
+    const wd = findTag(matched[1] as Token, 'WeekdayName');
+    if (!wd || wd.kind !== 'WeekdayName') return null;
+    return { type: 'weekday', weekday: wd.weekday, modifier: 'nearest' };
+  },
+};
+
 export const ukThisWeekdayRule: Rule = {
   name: 'uk-this-weekday',
   priority: 70,
@@ -94,6 +108,43 @@ export const ukDayMonthRule: Rule = {
     if (!n || n.kind !== 'Numeral' || !m || m.kind !== 'MonthName') return null;
     if (n.value < 1 || n.value > 31) return null;
     return { type: 'absolute', month: m.month, day: n.value };
+  },
+};
+
+export const ukOrdinalDayMonthRule: Rule = {
+  name: 'uk:ordinal-day-month',
+  priority: 65,
+  pattern: [
+    { kind: 'tag', tag: 'Ordinal' },
+    { kind: 'tag', tag: 'MonthName' },
+  ],
+  produce: (matched) => {
+    const day = (matched[0] as Token).tags.find(t => t.kind === 'Ordinal');
+    const month = (matched[1] as Token).tags.find(t => t.kind === 'MonthName');
+    if (!day || day.kind !== 'Ordinal' || !month || month.kind !== 'MonthName') return null;
+    if (day.value < 1 || day.value > 31) return null;
+    return { type: 'absolute', month: month.month, day: day.value };
+  },
+};
+
+export const ukCompoundOrdinalDayMonthRule: Rule = {
+  name: 'uk:compound-ordinal-day-month',
+  priority: 70,
+  pattern: [
+    { kind: 'tag', tag: 'Numeral' },
+    { kind: 'tag', tag: 'Ordinal' },
+    { kind: 'tag', tag: 'MonthName' },
+  ],
+  produce: (matched) => {
+    const tens = (matched[0] as Token).tags.find(t => t.kind === 'Numeral');
+    const ones = (matched[1] as Token).tags.find(t => t.kind === 'Ordinal');
+    const month = (matched[2] as Token).tags.find(t => t.kind === 'MonthName');
+    if (!tens || tens.kind !== 'Numeral' || !ones || ones.kind !== 'Ordinal' || !month || month.kind !== 'MonthName') return null;
+    if (tens.value % 10 !== 0 || tens.value < 20 || tens.value > 90) return null;
+    if (ones.value < 1 || ones.value > 9) return null;
+    const day = tens.value + ones.value;
+    if (day > 31) return null;
+    return { type: 'absolute', month: month.month, day };
   },
 };
 
@@ -186,14 +237,19 @@ export const ukDdMmDateRule: Rule = {
   },
 };
 
-// DD.MM-DD.MM — compact range, same month or not, no spaces.
+// DD.MM-DD.MM — compact range, same month or not, with optional NBSP padding around dash.
 export const ukDdMmRangeRule: Rule = {
   name: 'uk-dd-mm-range',
   priority: 100,
-  pattern: [{ kind: 'tag', tag: 'Literal', predicate: (t) => /^\d{1,2}\.\d{1,2}-\d{1,2}\.\d{1,2}$/.test(t.text) }],
+  pattern: [{ kind: 'tag', tag: 'Literal', predicate: (t) => /^\d{1,2}\.\d{1,2} *- *\d{1,2}\.\d{1,2}$/.test(t.text) }],
   produce: (matched) => {
     const t = matched[0] as Token;
-    const m = t.text.match(/^(\d{1,2})\.(\d{1,2})-(\d{1,2})\.(\d{1,2})$/);
+    const parts = t.text.split('-').map(s => s.replace(/ +/g, '').trim());
+    const [fromPart, toPart] = parts;
+    if (!fromPart || !toPart) return null;
+    const mf = fromPart.match(/^(\d{1,2})\.(\d{1,2})$/);
+    const mt = toPart.match(/^(\d{1,2})\.(\d{1,2})$/);
+    const m = mf && mt ? [null, mf[1], mf[2], mt[1], mt[2]] : null;
     if (!m) return null;
     const d1 = +m[1]!, mo1 = +m[2]!, d2 = +m[3]!, mo2 = +m[4]!;
     if (d1 < 1 || d1 > 31 || mo1 < 1 || mo1 > 12) return null;
@@ -207,12 +263,80 @@ export const ukDdMmRangeRule: Rule = {
   },
 };
 
+// "найближчі вихідні" → nearest upcoming Saturday-Sunday pair.
+// Uses the same offset_from trick as naVihidniRule to keep Sat+Sun anchored together.
+export const najblyzchiVihidniRule: Rule = {
+  name: 'uk:najblyzchi-vihidni',
+  priority: 40,
+  pattern: [
+    { kind: 'tag', tag: 'Grabber', predicate: (t) => t.tags.some(x => x.kind === 'Grabber' && x.modifier === 'nearest') },
+    { kind: 'tag', tag: 'Literal',  predicate: (t) => /вихідн/i.test(t.text) },
+  ],
+  produce: () => {
+    const startNode = { type: 'weekday' as const, weekday: 6, modifier: 'nearest' as const };
+    return {
+      type: 'range',
+      start: startNode,
+      end:   { type: 'offset_from', base: startNode, days: 1 },
+      convention: 'checkout',
+    };
+  },
+};
+
+// "на вихідні" → nearest upcoming Saturday-Sunday pair.
+// Uses offset_from to anchor Sunday relative to the resolved Saturday, avoiding
+// the edge case where `nearest` Sunday lands before `nearest` Saturday when the
+// reference day is Saturday (delta=1 → tomorrow, but `nearest` Sat jumped +7).
+export const naVihidniRule: Rule = {
+  name: 'uk:na-vihidni',
+  priority: 40,
+  pattern: [
+    { kind: 'tag', tag: 'Connector', predicate: (t) => /^на$/i.test(t.text) },
+    { kind: 'tag', tag: 'Literal',   predicate: (t) => /вихідн/i.test(t.text) },
+  ],
+  produce: () => {
+    const startNode = { type: 'weekday' as const, weekday: 6, modifier: 'nearest' as const };
+    return {
+      type: 'range',
+      start: startNode,
+      end:   { type: 'offset_from', base: startNode, days: 1 },
+      convention: 'checkout',
+    };
+  },
+};
+
+// "десь у травні" / "приблизно в серпні" → fuzzy{granularity:'month'}
+export const vagueMonthRule: Rule = {
+  name: 'uk:vague-month',
+  priority: 50,
+  pattern: [
+    { kind: 'tag', tag: 'VagueMarker' },
+    { kind: 'tag', tag: 'Connector', predicate: (t) => t.tags.some(x => x.kind === 'Connector' && x.conn === 'in') },
+    { kind: 'tag', tag: 'MonthName' },
+  ],
+  produce: (matched) => {
+    const monthTag = (matched[2] as Token).tags.find(t => t.kind === 'MonthName');
+    if (!monthTag || monthTag.kind !== 'MonthName') return null;
+    return {
+      type: 'fuzzy',
+      granularity: 'month',
+      ref: { type: 'absolute', month: monthTag.month },
+      reason: 'vague_month',
+    };
+  },
+};
+
 export const ukRules: Rule[] = [
   ukDdMmDateRule, ukDdMmRangeRule,
   ukTodayRule, ukTomorrowRule, ukYesterdayRule, ukDayAfterTomorrowRule,
-  ukNextWeekdayRule, ukThisWeekdayRule,
+  ukNextWeekdayRule, ukNearestWeekdayRule, ukThisWeekdayRule,
   ukThroughNRule,
   ukUntilEndOfRule,
   ukRangeUntilRule, ukRangeThroughRule,
   ukDayMonthRule,
+  ukCompoundOrdinalDayMonthRule,
+  ukOrdinalDayMonthRule,
+  najblyzchiVihidniRule,
+  naVihidniRule,
+  vagueMonthRule,
 ];

@@ -4,7 +4,8 @@ import type { ResolvedDate, ParseOptions } from './types';
 
 export type PatternItem =
   | { kind: 'tag'; tag: Tag['kind']; predicate?: (t: Token) => boolean; optional?: boolean }
-  | { kind: 'node'; node: IRNode['type']; optional?: boolean };
+  | { kind: 'node'; node: IRNode['type']; optional?: boolean }
+  | { kind: 'node'; nodes: IRNode['type'][]; optional?: boolean };
 
 export interface Rule {
   name: string;

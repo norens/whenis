@@ -23,6 +23,8 @@ export interface ResolvedDate {
   end?: string;
   nights?: number;
   granularity?: 'day' | 'month' | 'year' | 'season';
+  /** Set on fuzzy candidates with month/year granularity; lets enrichers compare to reference. */
+  ref?: { month?: number; year?: number };
   reason?: string;
   metadata?: Record<string, unknown>;
 }

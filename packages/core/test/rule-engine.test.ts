@@ -108,6 +108,54 @@ describe('runRules', () => {
     expect(result[0]!.end).toBe(11);
   });
 
+  it('nodes array: fires when IR type is in the list', () => {
+    const tokens: Token[] = [
+      T('5', [{ kind: 'Numeral', value: 5 }]),
+      T('днів', [{ kind: 'TimeUnit', unit: 'day' }], 2, 6),
+    ];
+    const makeAbsolute: Rule = {
+      name: 'make-absolute',
+      priority: 10,
+      pattern: [{ kind: 'tag', tag: 'Numeral' }],
+      produce: () => ({ type: 'absolute', day: 5 }),
+    };
+    const wrapAnyOf: Rule = {
+      name: 'wrap-any-of',
+      priority: 5,
+      pattern: [{ kind: 'node', nodes: ['absolute', 'weekday'] }],
+      produce: (matched) => {
+        const inner = matched[0] as import('../src/ir').IRNode;
+        return { type: 'fuzzy', granularity: 'day', ref: inner, reason: 'test' };
+      },
+    };
+    const result = runRules(tokens, [makeAbsolute, wrapAnyOf]);
+    expect(result).toHaveLength(1);
+    expect(result[0]!.node.type).toBe('fuzzy');
+  });
+
+  it('nodes array: does NOT fire when IR type is not in the list', () => {
+    const tokens: Token[] = [
+      T('5', [{ kind: 'Numeral', value: 5 }]),
+      T('днів', [{ kind: 'TimeUnit', unit: 'day' }], 2, 6),
+    ];
+    const makeDuration: Rule = {
+      name: 'make-duration',
+      priority: 10,
+      pattern: [{ kind: 'tag', tag: 'Numeral' }, { kind: 'tag', tag: 'TimeUnit' }],
+      produce: () => ({ type: 'duration', nights: 5 }),
+    };
+    const wrapAbsoluteOrWeekday: Rule = {
+      name: 'wrap-absolute-or-weekday',
+      priority: 5,
+      pattern: [{ kind: 'node', nodes: ['absolute', 'weekday'] }],
+      produce: () => ({ type: 'fuzzy', granularity: 'day', ref: { type: 'absolute' }, reason: 'test' }),
+    };
+    const result = runRules(tokens, [makeDuration, wrapAbsoluteOrWeekday]);
+    expect(result).toHaveLength(1);
+    // duration is not in ['absolute', 'weekday'], so it stays as duration
+    expect(result[0]!.node.type).toBe('duration');
+  });
+
   it('optional pattern item: skipped when absent; matched array carries null', () => {
     const tokens: Token[] = [
       T('через', [{ kind: 'Grabber', modifier: 'in' }]),

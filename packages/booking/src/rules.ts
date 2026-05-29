@@ -101,17 +101,21 @@ export const weekendThisRule: Rule = {
   }),
 };
 
-// "останні вихідні [травня]" — last Saturday-Sunday pair of the named (or current) month.
+// "останні вихідні [в/у] [травня]" — last Saturday-Sunday pair of the named (or current) month.
+// The 'в'/'у' filler (Connector:in) between the weekend literal and the month name is optional.
 export const weekendLastOfMonthRule: Rule = {
   name: 'booking-weekend-last-of-month',
   priority: 82,
   pattern: [
     { kind: 'tag', tag: 'Grabber', predicate: (t) => t.tags.some(x => x.kind === 'Grabber' && x.modifier === 'last') },
     { kind: 'tag', tag: 'Literal', predicate: (t) => /вихідн/i.test(t.text) },
+    { kind: 'tag', tag: 'Connector', predicate: (t) => t.tags.some(x => x.kind === 'Connector' && x.conn === 'in'), optional: true },
     { kind: 'tag', tag: 'MonthName', optional: true },
   ],
   produce: (matched) => {
-    const monthTok = matched[2] as Token | null;
+    // matched[2] is the optional Connector:in filler (null if absent)
+    // matched[3] is the optional MonthName (null if absent)
+    const monthTok = matched[3] as Token | null;
     const mTag = monthTok?.tags.find(t => t.kind === 'MonthName');
     const month = mTag && mTag.kind === 'MonthName' ? mTag.month : undefined;
     const start: IRNode = month !== undefined
@@ -201,7 +205,7 @@ export const bookingTags = new Map<string, Tag[]>([
   ['впродовж', [{ kind: 'Grabber', modifier: 'within' }]],
   ['найближчі', [{ kind: 'Grabber', modifier: 'within' }]],
   ['найближчих', [{ kind: 'Grabber', modifier: 'within' }]],
-  ['у', [{ kind: 'Connector', conn: 'from' }]],
-  ['в', [{ kind: 'Connector', conn: 'from' }]],
+  ['у', [{ kind: 'Connector', conn: 'in' }]],
+  ['в', [{ kind: 'Connector', conn: 'in' }]],
   ['на', [{ kind: 'Connector', conn: 'from' }]],
 ]);

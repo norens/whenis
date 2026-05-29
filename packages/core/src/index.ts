@@ -2,6 +2,7 @@ import { tokenize } from './tokenizer';
 import { runRules } from './rule-engine';
 import { resolve } from './resolver';
 import { baseRules } from './base-rules';
+import { mergeLocales } from './merge-locales';
 import type { Locale } from './locale';
 import type { Plugin, ResolverCtx, Rule } from './plugin';
 import type { ParseOptions, ParseResult, Match } from './types';
@@ -17,17 +18,27 @@ export interface Parser {
 }
 
 export function createParser(cfg: CreateParserOptions): Parser {
-  const locale = cfg.locales[0];
-  if (!locale) throw new Error('whenis: at least one locale required');
+  // mergeLocales throws if array is empty, and short-circuits to identity for single-locale arrays.
+  const locale = mergeLocales(cfg.locales);
   const plugins = cfg.plugins ?? [];
 
-  // Merge plugin lexicon into a per-parser locale (immutable merge)
+  // Merge plugin lexicon into the (possibly already-merged) locale (immutable merge, locale wins on collision)
   const mergedLexicon = new Map(locale.lexicon);
+  const lexiconSource = new Map(locale.lexiconSource ?? []);
   for (const p of plugins) {
     if (!p.tags) continue;
-    for (const [k, v] of p.tags) mergedLexicon.set(k, v);
+    for (const [k, v] of p.tags) {
+      if (!mergedLexicon.has(k)) {
+        mergedLexicon.set(k, v);
+        lexiconSource.set(k, `plugin:${p.name ?? 'anon'}`);
+      }
+    }
   }
-  const mergedLocale: Locale = { ...locale, lexicon: mergedLexicon };
+  const mergedLocale: Locale = {
+    ...locale,
+    lexicon: mergedLexicon,
+    lexiconSource: lexiconSource.size > 0 ? lexiconSource : undefined,
+  };
 
   const allRules: Rule[] = [
     ...baseRules,
@@ -70,3 +81,4 @@ export type { Tag, Token } from './tags';
 export type { IRNode, IRSpan } from './ir';
 export type { ParseOptions, ParseResult, Match, ResolvedDate } from './types';
 export { tokenize, runRules, resolve, baseRules };
+export { mergeLocales } from './merge-locales';

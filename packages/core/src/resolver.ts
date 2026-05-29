@@ -8,14 +8,14 @@ export function resolve(node: IRNode, ctx: ResolverCtx): ResolvedDate[] {
     case 'absolute': {
       const date = resolveAbsolute(node, ctx);
       if (!date) return [{ confidence: 0, type: 'fuzzy', reason: 'invalid_absolute' }];
-      // Signal past-ISO: when caller gave an explicit year+month+day and the
-      // resolved date is before the reference, attach reason='past_iso' so the
+      // Signal past-date: when caller gave an explicit year+month+day and the
+      // resolved date is before the reference, attach reason='past_date' so the
       // caller (e.g. booking adapter) can decide to roll forward or flag.
       if (node.year !== undefined && node.month !== undefined && node.day !== undefined) {
         const ref = DateTime.fromJSDate(ctx.reference, { zone: ctx.timezone }).startOf('day');
         const resolvedDt = DateTime.fromISO(date, { zone: ctx.timezone });
         if (resolvedDt < ref) {
-          return [{ confidence: 1, type: 'date', date, granularity: 'day', reason: 'past_iso' }];
+          return [{ confidence: 1, type: 'date', date, granularity: 'day', reason: 'past_date' }];
         }
       }
       return [{ confidence: 1, type: 'date', date, granularity: 'day' }];
@@ -29,7 +29,23 @@ export function resolve(node: IRNode, ctx: ResolverCtx): ResolvedDate[] {
     case 'window':
       return resolveWindow(node, ctx);
     case 'fuzzy':
-      return [{ confidence: 0.3, type: 'fuzzy', reason: node.reason, granularity: node.granularity }];
+      if (node.granularity === 'day') {
+        const inner = resolve(node.ref, ctx);
+        return [
+          ...inner.map(c => ({ ...c, confidence: c.confidence * 0.4, reason: c.reason ?? node.reason })),
+          { confidence: 0, type: 'fuzzy' as const, reason: node.reason, granularity: 'day' as const },
+        ];
+      }
+      {
+        const fuzzyRef = extractRef(node.ref);
+        return [{
+          confidence: 0.3,
+          type: 'fuzzy' as const,
+          reason: node.reason,
+          granularity: node.granularity,
+          ...(fuzzyRef ? { ref: fuzzyRef } : {}),
+        }];
+      }
     case 'unresolved':
       return [{ confidence: 0, type: 'fuzzy', reason: node.reason }];
     case 'relative':
@@ -158,4 +174,12 @@ function resolveRelative(node: Extract<IRNode, { type: 'relative' }>, ctx: Resol
     years: sign * (node.offset.years ?? 0),
   });
   return [{ confidence: 1, type: 'date', date: dt.toISODate()!, granularity: 'day' }];
+}
+
+function extractRef(node: IRNode): { month?: number; year?: number } | undefined {
+  if (node.type !== 'absolute') return undefined;
+  const ref: { month?: number; year?: number } = {};
+  if (node.month !== undefined) ref.month = node.month;
+  if (node.year !== undefined) ref.year = node.year;
+  return Object.keys(ref).length > 0 ? ref : undefined;
 }
