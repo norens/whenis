@@ -17,6 +17,8 @@ interface CorpusEntry {
   expected_window?: { start: string; end: string };
   expected_duration?: number;
   expected_reason?: string;
+  expected_confidence_lt?: number;
+  expected_confidence_gte?: number;
 }
 
 const corpusPath = resolvePath(__dirname, 'corpus.jsonl');
@@ -51,6 +53,12 @@ describe.each(entries)('corpus: $input (ref $reference)', (entry) => {
     }
     if (entry.expected_reason) {
       expect(top.reason).toBe(entry.expected_reason);
+    }
+    if (entry.expected_confidence_lt !== undefined) {
+      expect(top.confidence).toBeLessThan(entry.expected_confidence_lt);
+    }
+    if (entry.expected_confidence_gte !== undefined) {
+      expect(top.confidence).toBeGreaterThanOrEqual(entry.expected_confidence_gte);
     }
   });
 });

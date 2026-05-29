@@ -1,5 +1,6 @@
 import type { Rule } from './plugin';
 import type { Token } from './tags';
+import type { IRNode } from './ir';
 
 /** ISO YYYY-MM-DD passthrough. */
 export const isoDateRule: Rule = {
@@ -36,4 +37,33 @@ export const numeralTimeUnitRule: Rule = {
   },
 };
 
-export const baseRules: Rule[] = [isoDateRule, numeralTimeUnitRule];
+/** <date|weekday|range> + VagueMarker → fuzzy{granularity:'day'} */
+export const vagueQualifiedRule: Rule = {
+  name: 'base:vague-qualified',
+  // Lower priority so concrete date/weekday rules emit their IR first; this rule then wraps it.
+  priority: -10,
+  pattern: [
+    { kind: 'node', nodes: ['absolute', 'weekday', 'range'] },
+    { kind: 'tag',  tag:  'VagueMarker' },
+  ],
+  produce: (matched) => {
+    const inner = matched[0] as IRNode;
+    return { type: 'fuzzy', granularity: 'day', ref: inner, reason: 'vague_qualified' };
+  },
+};
+
+/** VagueMarker + <date|weekday|range> → fuzzy{granularity:'day'} */
+export const vagueQualifiedPrefixRule: Rule = {
+  name: 'base:vague-qualified-prefix',
+  priority: -10,
+  pattern: [
+    { kind: 'tag',  tag:  'VagueMarker' },
+    { kind: 'node', nodes: ['absolute', 'weekday', 'range'] },
+  ],
+  produce: (matched) => {
+    const inner = matched[1] as IRNode;
+    return { type: 'fuzzy', granularity: 'day', ref: inner, reason: 'vague_qualified' };
+  },
+};
+
+export const baseRules: Rule[] = [isoDateRule, numeralTimeUnitRule, vagueQualifiedRule, vagueQualifiedPrefixRule];

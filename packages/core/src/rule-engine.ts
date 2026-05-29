@@ -13,7 +13,9 @@ function matchesItem(item: Item, p: PatternItem): boolean {
     if (p.predicate && !p.predicate(item.token)) return false;
     return true;
   }
-  return item.kind === 'node' && item.node.type === p.node;
+  if (item.kind !== 'node') return false;
+  if ('nodes' in p && p.nodes) return p.nodes.includes(item.node.type);
+  return 'node' in p && !!p.node && item.node.type === p.node;
 }
 
 interface MatchResult {
