@@ -7,7 +7,9 @@ export const mostlyPastEnricher: Enricher = {
   apply(candidate: ResolvedDate, ctx: ResolverCtx): ResolvedDate {
     if (candidate.type !== 'fuzzy') return candidate;
     if (candidate.granularity !== 'month') return candidate;
+    if (candidate.ref?.month === undefined) return candidate;
     const ref = DateTime.fromJSDate(ctx.reference, { zone: ctx.timezone });
+    if (candidate.ref.month !== ref.month) return candidate;
     const elapsed = ref.day / (ref.daysInMonth ?? 30);
     if (elapsed < DEFAULT_THRESHOLD) return candidate;
     return {

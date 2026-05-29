@@ -43,3 +43,6 @@
 { "input": "5 червня приблизно", "reference": "2026-04-29", "expected_date": "2026-06-05", "expected_confidence_lt": 0.5 }
 { "input": "приблизно наступну п'ятницю", "reference": "2026-04-29", "expected_date": "2026-05-08", "expected_confidence_lt": 0.5 }
 { "input": "5 червня", "reference": "2026-04-29", "expected_date": "2026-06-05", "expected_confidence_gte": 0.9 }
+{"input":"десь у травні","reference":"2026-05-27","expected_reason":"vague_month","expected_metadata":{"suggest_next_month":true}}
+{"input":"десь у травні","reference":"2026-05-04","expected_reason":"vague_month","expected_metadata_absent":"suggest_next_month"}
+{"input":"десь у серпні","reference":"2026-05-27","expected_reason":"vague_month","expected_metadata_absent":"suggest_next_month"}
