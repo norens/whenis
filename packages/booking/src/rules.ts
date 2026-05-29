@@ -133,9 +133,36 @@ export const holidayNaRule: Rule = {
   }),
 };
 
+// "[з] 5 червня на 3 ночі" — combine a previously-emitted absolute date with a
+// duration into a single range. Both sub-IRs are produced by their own rules
+// at lower priority (60 / 75); this rule fires next, gluing them together.
+export const bookingDateWithNightsRule: Rule = {
+  name: 'booking-date-with-nights',
+  priority: 80,
+  pattern: [
+    { kind: 'tag',  tag: 'Connector', predicate: (t) => t.tags.some(x => x.kind === 'Connector' && x.conn === 'from'), optional: true },
+    { kind: 'node', node: 'absolute' },
+    { kind: 'node', node: 'duration' },
+  ],
+  produce: (matched) => {
+    const a = matched[1] as IRNode;
+    const d = matched[2] as IRNode;
+    if (a.type !== 'absolute' || d.type !== 'duration') return null;
+    const nights = d.nights;
+    if (nights === undefined) return null;
+    return {
+      type: 'range',
+      start: a,
+      end:   { type: 'offset_from', base: a, days: nights },
+      convention: 'checkout',
+    };
+  },
+};
+
 export const bookingRules: Rule[] = [
   windowWithinNRule,
   windowWithinNWithPrefixRule,
+  bookingDateWithNightsRule,
   stayDurationRule,
   weekendNextRule,
   weekendThisRule,
