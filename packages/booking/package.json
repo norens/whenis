@@ -1,6 +1,6 @@
 {
   "name": "@whenis/booking",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Booking-domain plugin for whenis — search windows, stay durations, weekend semantics, holiday references, mostly-past month enricher.",
   "keywords": [
     "date",
