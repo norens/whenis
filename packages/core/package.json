@@ -1,6 +1,6 @@
 {
   "name": "@whenis/core",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Natural-language date parser for TypeScript — tokenizer + rule engine + resolver. Multi-candidate output, plugin-extensible, ESM + CJS.",
   "keywords": [
     "date",

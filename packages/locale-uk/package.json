@@ -1,6 +1,6 @@
 {
   "name": "@whenis/locale-uk",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Ukrainian locale for whenis — full inflected lexicon (months, weekdays, pointers, connectors, time units) and locale-specific rules.",
   "keywords": [
     "date",

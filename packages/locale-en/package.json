@@ -1,6 +1,6 @@
 {
   "name": "@whenis/locale-en",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "English locale for whenis — today/tomorrow/yesterday, next/this weekday, basic month-day forms and durations.",
   "keywords": [
     "date",
