@@ -34,3 +34,61 @@ describe('createParser with multiple locales', () => {
     expect(result.matches[0]?.candidates[0]?.reason).toBe('probe-fired');
   });
 });
+
+describe('Token.sourceLocale', () => {
+  it('tokenizer tags tokens with the source locale from a merged Locale', async () => {
+    const { tokenize } = await import('../src/tokenizer');
+    const { mergeLocales } = await import('../src');
+    const a: Locale = {
+      code: 'uk',
+      dateOrder: 'DMY', weekStart: 'mon', preprocess: [], stems: [], rules: [],
+      lexicon: new Map([['привіт', [{ kind: 'Literal', text: 'hi' }]]]),
+      defaults: { preferFuture: true },
+    };
+    const b: Locale = {
+      code: 'en',
+      dateOrder: 'MDY', weekStart: 'mon', preprocess: [], stems: [], rules: [],
+      lexicon: new Map([['hello', [{ kind: 'Literal', text: 'hi' }]]]),
+      defaults: { preferFuture: true },
+    };
+    const merged = mergeLocales([a, b]);
+    const toks = tokenize('привіт hello', merged);
+    expect(toks[0]?.sourceLocale).toBe('uk');
+    expect(toks[1]?.sourceLocale).toBe('en');
+  });
+
+  it('tokenizer leaves sourceLocale undefined for single-locale parsers', async () => {
+    const { tokenize } = await import('../src/tokenizer');
+    const single: Locale = {
+      code: 'uk',
+      dateOrder: 'DMY', weekStart: 'mon', preprocess: [], stems: [], rules: [],
+      lexicon: new Map([['привіт', [{ kind: 'Literal', text: 'hi' }]]]),
+      defaults: { preferFuture: true },
+    };
+    const toks = tokenize('привіт', single);
+    expect(toks[0]?.sourceLocale).toBeUndefined();
+  });
+
+  it('tokenizer attributes source for stem hits', async () => {
+    const { tokenize } = await import('../src/tokenizer');
+    const { mergeLocales } = await import('../src');
+    const a: Locale = {
+      code: 'uk',
+      dateOrder: 'DMY', weekStart: 'mon', preprocess: [], rules: [],
+      lexicon: new Map(),
+      stems: [[/^trav/u, [{ kind: 'MonthName', month: 5 }]]],
+      defaults: { preferFuture: true },
+    };
+    const b: Locale = {
+      code: 'en',
+      dateOrder: 'MDY', weekStart: 'mon', preprocess: [], rules: [],
+      lexicon: new Map(),
+      stems: [[/^may/u, [{ kind: 'MonthName', month: 5 }]]],
+      defaults: { preferFuture: true },
+    };
+    const merged = mergeLocales([a, b]);
+    const toks = tokenize('travnia may', merged);
+    expect(toks[0]?.sourceLocale).toBe('uk');
+    expect(toks[1]?.sourceLocale).toBe('en');
+  });
+});

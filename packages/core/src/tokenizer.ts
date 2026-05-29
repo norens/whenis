@@ -26,12 +26,17 @@ export function tokenize(input: string, locale: Locale): Token[] {
     if (end > pos) {
       const tokText = text.slice(pos, end);
       if (!locale.skip?.has(tokText)) {
-        tokens.push({
+        const classification = classifyToken(tokText, locale);
+        const baseToken: Token = {
           text: original.slice(pos, end),
           start: pos,
           end,
-          tags: classifyToken(tokText, locale),
-        });
+          tags: classification.tags,
+        };
+        if (classification.source !== undefined) {
+          baseToken.sourceLocale = classification.source;
+        }
+        tokens.push(baseToken);
       }
     }
     if (!m) break;
@@ -40,27 +45,35 @@ export function tokenize(input: string, locale: Locale): Token[] {
   return tokens;
 }
 
-function classifyToken(token: string, locale: Locale): Tag[] {
+function classifyToken(token: string, locale: Locale): { tags: Tag[]; source?: string } {
   // 1) Exact lexicon hit
   const exact = locale.lexicon.get(token);
-  if (exact && exact.length > 0) return [...exact];
+  if (exact && exact.length > 0) {
+    const source = locale.lexiconSource?.get(token);
+    return source !== undefined ? { tags: [...exact], source } : { tags: [...exact] };
+  }
 
   // 2) Numeric date — DD.MM / DD.MM.YYYY / DD.MM-DD.MM
   // Checked before the numeric fallback so `15.07` doesn't become a float.
   if (NUMERIC_DATE_RE.test(token)) {
-    return [{ kind: 'Literal', text: token }];
+    return { tags: [{ kind: 'Literal', text: token }] };
   }
 
   // 3) Numeric
   if (NUMBER_RE.test(token)) {
-    return [{ kind: 'Numeral', value: Number(token) }];
+    return { tags: [{ kind: 'Numeral', value: Number(token) }] };
   }
 
   // 4) Stem fallback (first matching stem wins)
-  for (const [re, tags] of locale.stems) {
-    if (re.test(token)) return [...tags];
+  for (let i = 0; i < locale.stems.length; i++) {
+    const stem = locale.stems[i]!;
+    const [re, tags] = stem;
+    if (re.test(token)) {
+      const source = locale.stemSource?.[i];
+      return source !== undefined ? { tags: [...tags], source } : { tags: [...tags] };
+    }
   }
 
   // 5) Literal
-  return [{ kind: 'Literal', text: token }];
+  return { tags: [{ kind: 'Literal', text: token }] };
 }
