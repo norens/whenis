@@ -1,5 +1,42 @@
 # @whenis/locale-en
 
+## 0.3.0
+
+### Minor Changes
+
+- [#8](https://github.com/norens/whenis/pull/8) [`75d17a5`](https://github.com/norens/whenis/commit/75d17a56fdf84461a84657d7fffda72783e0f3c9) Thanks [@norens](https://github.com/norens)! - GAP-1 + GAP-9: past-ISO signal and `до кінця тижня/місяця`.
+
+  **core: `reason: 'past_iso'` signal.** When `isoDateRule` resolves to a date strictly before the reference, the resolver attaches `reason: 'past_iso'` to the candidate (confidence stays at `1` — ISO is unambiguous, the signal is for callers that want to roll forward or flag the input). Closes "GAP-1".
+
+  **core: new `boundary` IR node.** `{ type: 'boundary'; unit: 'week' | 'month' | 'year'; edge: 'start' | 'end' }` resolves to the start/end of the relevant ISO period against the reference (via Luxon `startOf`/`endOf`). Lets rules express "end of week/month" without needing concrete day offsets at rule time.
+
+  **locale-uk: `до кінця тижня / до кінця місяця`.** New `ukUntilEndOfRule` (priority 78) matches `Connector:to + Literal:__end_of__ + TimeUnit` and emits a `window` from today to `boundary(unit, 'end')`. Adds `кінця` / `кінець` to the lexicon as the end-of marker, plus missing `тижня` / `тижнем` (genitive/instrumental singular of `тиждень`). Closes "GAP-9" for week and month — year is still gated on `року` being in the skip set; deferring.
+
+- [#10](https://github.com/norens/whenis/pull/10) [`aeac351`](https://github.com/norens/whenis/commit/aeac351ac2602fba5ee6f1a763ba614f61efc975) Thanks [@norens](https://github.com/norens)! - GAP-10: combined `<date> на N ночей` intent.
+
+  **core: new `offset_from` IR node.** `{ type: 'offset_from'; base: IRNode; days: number }` resolves `base` then adds `days`. Lets one IR be expressed as a fixed-day offset from another.
+
+  **booking: `bookingDateWithNightsRule`** (priority 80). Pattern `Connector:from? + node:absolute + node:duration` — fires after `ukDayMonthRule` (60) and `stayDurationRule` (75) have produced their sub-IRs. Glues them into a single `range` with `start = absolute`, `end = offset_from(start, duration.nights)`, `convention: 'checkout'`. Closes "GAP-10" — `5 червня на 2 ночі` and `з 5 червня на 3 ночі` now resolve as ranges with correct nights.
+
+- [#12](https://github.com/norens/whenis/pull/12) [`eb8f05e`](https://github.com/norens/whenis/commit/eb8f05e1a54127b90cd588cdeacd96a8645220e2) Thanks [@norens](https://github.com/norens)! - GAP-2: numeric dot-separated dates — `15.07`, `12.06.2025`, `12.06-22.06`.
+
+  **core: tokenizer guard.** Tokens matching `/^\d{1,2}\.\d{1,2}(?:\.\d{4}|-\d{1,2}\.\d{1,2})?$/` are now classified as `Literal`, not `Numeral`. Without this guard `15.07` would land as `Numeral{ value: 15.07 }` (float) and `12.06.2025` as `Numeral{ value: NaN }` — both useless.
+
+  **locale-uk: two new rules** at priority 100 (same as ISO):
+
+  - `ukDdMmDateRule` — `DD.MM` and `DD.MM.YYYY` → `absolute` IR (DMY order). Bare `DD.MM` rolls forward via the existing `preferFuture` path; explicit-year past dates pick up the `past_iso` reason from the absolute resolver.
+  - `ukDdMmRangeRule` — `DD.MM-DD.MM` → `range` (checkout convention).
+
+  Closes "GAP-2". Tokenizer change is locale-agnostic (just blocks the numeric fallback); the DMY interpretation lives in `locale-uk` so locales with other date orders (e.g. en-US MDY) can add their own rule when needed.
+
+- [#11](https://github.com/norens/whenis/pull/11) [`b2e68f9`](https://github.com/norens/whenis/commit/b2e68f95005b2ac9ef9e11eec5748c1f59841541) Thanks [@norens](https://github.com/norens)! - GAP-11: `останні вихідні [місяця]`.
+
+  **core: new `last_weekday_in_month` IR node.** `{ type: 'last_weekday_in_month'; weekday: number; month?: number }` resolves to the last given ISO weekday of the named (or reference) month, current year.
+
+  **locale-uk:** `останній / остання / останні / останніх / останнього / останньої` as `Grabber:last`.
+
+  **booking:** `weekendLastOfMonthRule` (priority 82). Pattern `Grabber:last + Literal:вихідн* + MonthName?` — emits a `range` of Sat-Sun of the named (or current) month's last weekend. Uses the new `last_weekday_in_month` to find the last Saturday and `offset_from` to derive Sunday. Closes "GAP-11".
+
 ## 0.2.0
 
 ### Minor Changes
