@@ -56,7 +56,7 @@
     "prepublishOnly": "pnpm build"
   },
   "peerDependencies": {
-    "@whenis/core": "^0.1.1"
+    "@whenis/core": ">=0.1.1 <1.0.0"
   },
   "devDependencies": {
     "@whenis/core": "workspace:*"

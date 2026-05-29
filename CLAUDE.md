@@ -105,6 +105,8 @@ The 4 packages are **fixed-versioned via changesets** (`.changeset/config.json` 
 
 `RELEASE_PAT` (a PAT, not `GITHUB_TOKEN`) is required so the workflow's PRs can trigger downstream CI. Don't change the release workflow to use `GITHUB_TOKEN` — the version PR's CI run won't fire.
 
+**Changesets peerDep gotcha.** Internal peerDep ranges between packages span the 0.x cycle (e.g. `>=0.1.1 <1.0.0`, not `^0.1.1`). With `@changesets/cli` defaults, any non-patch change to a package with peer dependents promotes the dependents to MAJOR — and combined with `fixed`, that drags the whole monorepo to 1.0.0 on the first minor release. The repo opts in to `___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH.onlyUpdatePeerDependentsWhenOutOfRange: true` so changesets only major-bumps when the new version actually leaves the peer range.
+
 ## Strict-TS conventions
 
 - `tsconfig.base.json`: `strict`, `noUncheckedIndexedAccess`, `moduleResolution: bundler`, target ES2022. No `any` in source.
