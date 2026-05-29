@@ -43,6 +43,7 @@
 {"input":"приблизно в серпні","reference":"2026-04-29","expected_reason":"vague_month"}
 {"input":"можливо в липні","reference":"2026-04-29","expected_reason":"vague_month"}
 { "input": "5 червня приблизно", "reference": "2026-04-29", "expected_date": "2026-06-05", "expected_confidence_lt": 0.5 }
+{"input":"12.06.2025 приблизно","reference":"2026-05-28","expected_date":"2025-06-12","expected_reason":"past_date","expected_confidence_lt":0.5}
 { "input": "приблизно наступну п'ятницю", "reference": "2026-04-29", "expected_date": "2026-05-08", "expected_confidence_lt": 0.5 }
 { "input": "5 червня", "reference": "2026-04-29", "expected_date": "2026-06-05", "expected_confidence_gte": 0.9 }
 {"input":"десь у травні","reference":"2026-05-27","expected_reason":"vague_month","expected_metadata":{"suggest_next_month":true}}

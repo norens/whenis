@@ -32,7 +32,7 @@ export function resolve(node: IRNode, ctx: ResolverCtx): ResolvedDate[] {
       if (node.granularity === 'day') {
         const inner = resolve(node.ref, ctx);
         return [
-          ...inner.map(c => ({ ...c, confidence: c.confidence * 0.4, reason: node.reason })),
+          ...inner.map(c => ({ ...c, confidence: c.confidence * 0.4, reason: c.reason ?? node.reason })),
           { confidence: 0, type: 'fuzzy' as const, reason: node.reason, granularity: 'day' as const },
         ];
       }
