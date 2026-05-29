@@ -70,3 +70,4 @@ export type { Tag, Token } from './tags';
 export type { IRNode, IRSpan } from './ir';
 export type { ParseOptions, ParseResult, Match, ResolvedDate } from './types';
 export { tokenize, runRules, resolve, baseRules };
+export { mergeLocales } from './merge-locales';
