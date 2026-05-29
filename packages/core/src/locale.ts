@@ -14,6 +14,10 @@ export interface Locale {
    *  like Ukrainian «р.» / «року». Matched by exact string (case-sensitive against
    *  the already-preprocessed token). */
   skip?: Set<string>;
+  /** Parallel attribution Map keyed by lexicon key. Populated only by mergeLocales. */
+  lexiconSource?: Map<string, string>;
+  /** Parallel attribution array — same indices as `stems`. Populated only by mergeLocales. */
+  stemSource?: string[];
   rules: Rule[];
   defaults: {
     preferFuture: boolean;

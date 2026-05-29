@@ -14,4 +14,6 @@ export interface Token {
   start: number;
   end: number;
   tags: Tag[];
+  /** Set by tokenizer when the source Locale is a merged one. Undefined for single-locale parsers. */
+  sourceLocale?: string;
 }
