@@ -51,3 +51,6 @@
 {"input":"на вихідні","reference":"2026-05-02","expected_range":{"start":"2026-05-09","end":"2026-05-10"}}
 {"input":"на вихідні","reference":"2026-05-03","expected_range":{"start":"2026-05-09","end":"2026-05-10"}}
 {"input":"на вихідні","reference":"2026-05-01","expected_range":{"start":"2026-05-02","end":"2026-05-03"}}
+{"input":"найближчі вихідні","reference":"2026-04-29","expected_range":{"start":"2026-05-02","end":"2026-05-03"}}
+{"input":"найближчі вихідні","reference":"2026-05-02","expected_range":{"start":"2026-05-09","end":"2026-05-10"}}
+{"input":"найближчу п'ятницю","reference":"2026-04-29","expected_date":"2026-05-01"}

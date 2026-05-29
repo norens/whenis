@@ -44,6 +44,20 @@ export const ukNextWeekdayRule: Rule = {
   },
 };
 
+export const ukNearestWeekdayRule: Rule = {
+  name: 'uk-nearest-weekday',
+  priority: 70,
+  pattern: [
+    { kind: 'tag', tag: 'Grabber', predicate: (t) => t.tags.some(x => x.kind === 'Grabber' && x.modifier === 'nearest') },
+    { kind: 'tag', tag: 'WeekdayName' },
+  ],
+  produce: (matched) => {
+    const wd = findTag(matched[1] as Token, 'WeekdayName');
+    if (!wd || wd.kind !== 'WeekdayName') return null;
+    return { type: 'weekday', weekday: wd.weekday, modifier: 'nearest' };
+  },
+};
+
 export const ukThisWeekdayRule: Rule = {
   name: 'uk-this-weekday',
   priority: 70,
@@ -207,6 +221,26 @@ export const ukDdMmRangeRule: Rule = {
   },
 };
 
+// "найближчі вихідні" → nearest upcoming Saturday-Sunday pair.
+// Uses the same offset_from trick as naVihidniRule to keep Sat+Sun anchored together.
+export const najblyzchiVihidniRule: Rule = {
+  name: 'uk:najblyzchi-vihidni',
+  priority: 40,
+  pattern: [
+    { kind: 'tag', tag: 'Grabber', predicate: (t) => t.tags.some(x => x.kind === 'Grabber' && x.modifier === 'nearest') },
+    { kind: 'tag', tag: 'Literal',  predicate: (t) => /вихідн/i.test(t.text) },
+  ],
+  produce: () => {
+    const startNode = { type: 'weekday' as const, weekday: 6, modifier: 'nearest' as const };
+    return {
+      type: 'range',
+      start: startNode,
+      end:   { type: 'offset_from', base: startNode, days: 1 },
+      convention: 'checkout',
+    };
+  },
+};
+
 // "на вихідні" → nearest upcoming Saturday-Sunday pair.
 // Uses offset_from to anchor Sunday relative to the resolved Saturday, avoiding
 // the edge case where `nearest` Sunday lands before `nearest` Saturday when the
@@ -253,11 +287,12 @@ export const vagueMonthRule: Rule = {
 export const ukRules: Rule[] = [
   ukDdMmDateRule, ukDdMmRangeRule,
   ukTodayRule, ukTomorrowRule, ukYesterdayRule, ukDayAfterTomorrowRule,
-  ukNextWeekdayRule, ukThisWeekdayRule,
+  ukNextWeekdayRule, ukNearestWeekdayRule, ukThisWeekdayRule,
   ukThroughNRule,
   ukUntilEndOfRule,
   ukRangeUntilRule, ukRangeThroughRule,
   ukDayMonthRule,
+  najblyzchiVihidniRule,
   naVihidniRule,
   vagueMonthRule,
 ];

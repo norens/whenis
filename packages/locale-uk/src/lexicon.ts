@@ -77,6 +77,15 @@ const entries: Array<[string, Tag[]]> = [
   ['цих',         [{ kind: 'Pointer', direction: 'this' }]],
   ['цими',        [{ kind: 'Pointer', direction: 'this' }]],
   ['через',       [{ kind: 'Grabber', modifier: 'in' }]],
+  // найближч* forms: plurals also carry Grabber:within to stay compatible with
+  // the booking plugin's "у найближчі N днів" window rule (booking lexicon would
+  // add only `within`, locale overrides take precedence, so we include both).
+  ['найближчі',   [{ kind: 'Grabber', modifier: 'nearest' }, { kind: 'Grabber', modifier: 'within' }]],
+  ['найближчих',  [{ kind: 'Grabber', modifier: 'nearest' }, { kind: 'Grabber', modifier: 'within' }]],
+  ['найближчу',   [{ kind: 'Grabber', modifier: 'nearest' }]],
+  ['найближчий',  [{ kind: 'Grabber', modifier: 'nearest' }]],
+  ['найближчого', [{ kind: 'Grabber', modifier: 'nearest' }]],
+  ['найближчою',  [{ kind: 'Grabber', modifier: 'nearest' }]],
 
   // Connectors
   ['з',           [{ kind: 'Connector', conn: 'from' }]],
@@ -164,4 +173,5 @@ export const ukStems: Array<[RegExp, Tag[]]> = [
   [/^жовтн/, [{ kind: 'MonthName', month: 10 }]],
   [/^листопад/, [{ kind: 'MonthName', month: 11 }]],
   [/^грудн/, [{ kind: 'MonthName', month: 12 }]],
+  [/^найближч/u, [{ kind: 'Grabber', modifier: 'nearest' }]],
 ];
