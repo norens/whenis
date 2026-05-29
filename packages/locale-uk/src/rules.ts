@@ -207,6 +207,27 @@ export const ukDdMmRangeRule: Rule = {
   },
 };
 
+// "десь у травні" / "приблизно в серпні" → fuzzy{granularity:'month'}
+export const vagueMonthRule: Rule = {
+  name: 'uk:vague-month',
+  priority: 50,
+  pattern: [
+    { kind: 'tag', tag: 'VagueMarker' },
+    { kind: 'tag', tag: 'Connector', predicate: (t) => t.tags.some(x => x.kind === 'Connector' && x.conn === 'in') },
+    { kind: 'tag', tag: 'MonthName' },
+  ],
+  produce: (matched) => {
+    const monthTag = (matched[2] as Token).tags.find(t => t.kind === 'MonthName');
+    if (!monthTag || monthTag.kind !== 'MonthName') return null;
+    return {
+      type: 'fuzzy',
+      granularity: 'month',
+      ref: { type: 'absolute', month: monthTag.month },
+      reason: 'vague_month',
+    };
+  },
+};
+
 export const ukRules: Rule[] = [
   ukDdMmDateRule, ukDdMmRangeRule,
   ukTodayRule, ukTomorrowRule, ukYesterdayRule, ukDayAfterTomorrowRule,
@@ -215,4 +236,5 @@ export const ukRules: Rule[] = [
   ukUntilEndOfRule,
   ukRangeUntilRule, ukRangeThroughRule,
   ukDayMonthRule,
+  vagueMonthRule,
 ];

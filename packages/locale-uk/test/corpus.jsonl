@@ -36,3 +36,7 @@
 {"input":"15.03","reference":"2026-05-28","expected_date":"2027-03-15"}
 {"input":"12.06.2025","reference":"2026-05-28","expected_date":"2025-06-12","expected_reason":"past_iso"}
 {"input":"12.06-22.06","reference":"2026-05-28","expected_range":{"start":"2026-06-12","end":"2026-06-22","nights":10}}
+{"input":"десь у травні","reference":"2026-04-29","expected_reason":"vague_month"}
+{"input":"колись у червні","reference":"2026-04-29","expected_reason":"vague_month"}
+{"input":"приблизно в серпні","reference":"2026-04-29","expected_reason":"vague_month"}
+{"input":"можливо в липні","reference":"2026-04-29","expected_reason":"vague_month"}

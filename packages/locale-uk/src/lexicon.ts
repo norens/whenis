@@ -85,6 +85,8 @@ const entries: Array<[string, Tag[]]> = [
   ['по',          [{ kind: 'Connector', conn: 'through' }]],
   ['між',         [{ kind: 'Connector', conn: 'between' }]],
   ['і',           [{ kind: 'Connector', conn: 'and' }]],
+  ['в',           [{ kind: 'Connector', conn: 'in' }]],
+  ['у',           [{ kind: 'Connector', conn: 'in' }]],
 
   // Time units
   ['день',  [{ kind: 'TimeUnit', unit: 'day' }]],

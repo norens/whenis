@@ -6,7 +6,7 @@ export type Tag =
   | { kind: 'TimeUnit';    unit: 'day' | 'week' | 'month' | 'year' | 'night' }
   | { kind: 'Pointer';     direction: 'past' | 'future' | 'this' }
   | { kind: 'Grabber';     modifier: 'next' | 'last' | 'nearest' | 'in' | 'ago' | 'within' | 'until' }
-  | { kind: 'Connector';   conn: 'from' | 'to' | 'through' | 'between' | 'and' }
+  | { kind: 'Connector';   conn: 'from' | 'to' | 'through' | 'between' | 'and' | 'in' }
   | { kind: 'VagueMarker'; strength: 'soft' | 'strong' }
   | { kind: 'Literal';     text: string };
 
