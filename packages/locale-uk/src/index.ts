@@ -13,6 +13,7 @@ export const uk: Locale = {
   preprocess: [(s) => s.toLowerCase(), normalizeApostrophes],
   lexicon: ukLexicon,
   stems: ukStems,
+  skip: new Set(['р.', 'року', 'рік']),
   rules: ukRules,
   defaults: { preferFuture: true },
 };

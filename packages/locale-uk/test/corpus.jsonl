@@ -14,3 +14,9 @@
 {"input":"на 5 ночей","reference":"2026-05-28","expected_duration":5}
 {"input":"наступні вихідні","reference":"2026-05-28","expected_range":{"start":"2026-06-06","end":"2026-06-07"}}
 {"input":"після свят","reference":"2026-05-28","expected_reason":"holiday_ref"}
+{"input":"через два тижні","reference":"2026-05-28","expected_date":"2026-06-11"}
+{"input":"через сім днів","reference":"2026-05-28","expected_date":"2026-06-04"}
+{"input":"через п'ять днів","reference":"2026-05-28","expected_date":"2026-06-02"}
+{"input":"позавтра","reference":"2026-05-28","expected_date":"2026-05-30"}
+{"input":"25 травня 2026 р.","reference":"2026-01-01","expected_date":"2026-05-25"}
+{"input":"25 травня 2026 року","reference":"2026-01-01","expected_date":"2026-05-25"}

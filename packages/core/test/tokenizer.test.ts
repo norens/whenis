@@ -2,13 +2,18 @@ import { describe, it, expect } from 'vitest';
 import { tokenize } from '../src/tokenizer';
 import type { Locale } from '../src/locale';
 
-const makeLocale = (lexicon: Record<string, any>, stems: Array<[RegExp, any]> = []): Locale => ({
+const makeLocale = (
+  lexicon: Record<string, any>,
+  stems: Array<[RegExp, any]> = [],
+  skip?: Set<string>,
+): Locale => ({
   code: 'test',
   dateOrder: 'DMY',
   weekStart: 'mon',
   preprocess: [(s) => s.toLowerCase()],
   lexicon: new Map(Object.entries(lexicon)),
   stems,
+  ...(skip ? { skip } : {}),
   rules: [],
   defaults: { preferFuture: true },
 });
@@ -52,6 +57,21 @@ describe('tokenize', () => {
     );
     const tokens = tokenize('травня', locale);
     expect(tokens[0]!.tags).toEqual([{ kind: 'MonthName', month: 5 }]);
+  });
+
+  it('drops tokens matching locale.skip; remaining positions stay in original input', () => {
+    const locale = makeLocale({}, [], new Set(['р.', 'року']));
+    const tokens = tokenize('25 травня 2026 р.', locale);
+    expect(tokens.map(t => t.text)).toEqual(['25', 'травня', '2026']);
+    // Position of "2026" is still 10..14 in the ORIGINAL input
+    expect(tokens[2]!.start).toBe(10);
+    expect(tokens[2]!.end).toBe(14);
+  });
+
+  it('skip applies after preprocess (lowercased compare)', () => {
+    const locale = makeLocale({}, [], new Set(['року']));
+    const tokens = tokenize('25 травня 2026 Року', locale);
+    expect(tokens.map(t => t.text)).toEqual(['25', 'травня', '2026']);
   });
 
   it('splits punctuation as separate tokens preserving positions', () => {
