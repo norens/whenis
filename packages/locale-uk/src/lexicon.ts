@@ -174,4 +174,18 @@ export const ukStems: Array<[RegExp, Tag[]]> = [
   [/^листопад/, [{ kind: 'MonthName', month: 11 }]],
   [/^грудн/, [{ kind: 'MonthName', month: 12 }]],
   [/^найближч/u, [{ kind: 'Grabber', modifier: 'nearest' }]],
+  // Ordinal day-of-month, genitive 1-10
+  [/^першо?г?о?$/u,    [{ kind: 'Ordinal', value: 1 }]],
+  [/^друго?г?о?$/u,    [{ kind: 'Ordinal', value: 2 }]],
+  [/^третьо?г?о?$/u,   [{ kind: 'Ordinal', value: 3 }]],
+  [/^четверто?г?о?$/u, [{ kind: 'Ordinal', value: 4 }]],
+  [/^п'ято?г?о?$/u,    [{ kind: 'Ordinal', value: 5 }]],
+  [/^шосто?г?о?$/u,    [{ kind: 'Ordinal', value: 6 }]],
+  [/^сьомо?г?о?$/u,    [{ kind: 'Ordinal', value: 7 }]],
+  [/^восьмо?г?о?$/u,   [{ kind: 'Ordinal', value: 8 }]],
+  [/^дев'ято?г?о?$/u,  [{ kind: 'Ordinal', value: 9 }]],
+  [/^десято?г?о?$/u,   [{ kind: 'Ordinal', value: 10 }]],
+  // Tens ordinals (genitive)
+  [/^двадцято?г?о?$/u, [{ kind: 'Ordinal', value: 20 }]],
+  [/^тридцято?г?о?$/u, [{ kind: 'Ordinal', value: 30 }]],
 ];

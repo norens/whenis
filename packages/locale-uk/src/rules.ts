@@ -111,6 +111,43 @@ export const ukDayMonthRule: Rule = {
   },
 };
 
+export const ukOrdinalDayMonthRule: Rule = {
+  name: 'uk:ordinal-day-month',
+  priority: 65,
+  pattern: [
+    { kind: 'tag', tag: 'Ordinal' },
+    { kind: 'tag', tag: 'MonthName' },
+  ],
+  produce: (matched) => {
+    const day = (matched[0] as Token).tags.find(t => t.kind === 'Ordinal');
+    const month = (matched[1] as Token).tags.find(t => t.kind === 'MonthName');
+    if (!day || day.kind !== 'Ordinal' || !month || month.kind !== 'MonthName') return null;
+    if (day.value < 1 || day.value > 31) return null;
+    return { type: 'absolute', month: month.month, day: day.value };
+  },
+};
+
+export const ukCompoundOrdinalDayMonthRule: Rule = {
+  name: 'uk:compound-ordinal-day-month',
+  priority: 70,
+  pattern: [
+    { kind: 'tag', tag: 'Numeral' },
+    { kind: 'tag', tag: 'Ordinal' },
+    { kind: 'tag', tag: 'MonthName' },
+  ],
+  produce: (matched) => {
+    const tens = (matched[0] as Token).tags.find(t => t.kind === 'Numeral');
+    const ones = (matched[1] as Token).tags.find(t => t.kind === 'Ordinal');
+    const month = (matched[2] as Token).tags.find(t => t.kind === 'MonthName');
+    if (!tens || tens.kind !== 'Numeral' || !ones || ones.kind !== 'Ordinal' || !month || month.kind !== 'MonthName') return null;
+    if (tens.value % 10 !== 0 || tens.value < 20 || tens.value > 90) return null;
+    if (ones.value < 1 || ones.value > 9) return null;
+    const day = tens.value + ones.value;
+    if (day > 31) return null;
+    return { type: 'absolute', month: month.month, day };
+  },
+};
+
 export const ukRangeUntilRule: Rule = {
   name: 'uk-range-until',
   priority: 80,
@@ -292,6 +329,8 @@ export const ukRules: Rule[] = [
   ukUntilEndOfRule,
   ukRangeUntilRule, ukRangeThroughRule,
   ukDayMonthRule,
+  ukCompoundOrdinalDayMonthRule,
+  ukOrdinalDayMonthRule,
   najblyzchiVihidniRule,
   naVihidniRule,
   vagueMonthRule,

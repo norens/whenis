@@ -56,3 +56,9 @@
 {"input":"найближчі вихідні","reference":"2026-04-29","expected_range":{"start":"2026-05-02","end":"2026-05-03"}}
 {"input":"найближчі вихідні","reference":"2026-05-02","expected_range":{"start":"2026-05-09","end":"2026-05-10"}}
 {"input":"найближчу п'ятницю","reference":"2026-04-29","expected_date":"2026-05-01"}
+{"input":"першого травня","reference":"2026-04-29","expected_date":"2026-05-01"}
+{"input":"другого червня","reference":"2026-04-29","expected_date":"2026-06-02"}
+{"input":"третього липня","reference":"2026-04-29","expected_date":"2026-07-03"}
+{"input":"десятого серпня","reference":"2026-04-29","expected_date":"2026-08-10"}
+{"input":"двадцять першого травня","reference":"2026-04-29","expected_date":"2026-05-21"}
+{"input":"першого травня можливо","reference":"2026-04-29","expected_date":"2026-05-01","expected_confidence_lt":0.5}
