@@ -5,20 +5,35 @@ const NUMBER_RE = /^-?\d+(?:\.\d+)*$/;
 /** DD.MM, DD.MM.YYYY, or DD.MM-DD.MM. Tokens matching this stay as Literals so
  *  date rules can interpret them — without the guard, NUMBER_RE would swallow
  *  `15.07` as the float 15.07 and `12.06.2025` as NaN. */
-const NUMERIC_DATE_RE = /^\d{1,2}\.\d{1,2}(?:\.\d{4}|-\d{1,2}\.\d{1,2})?$/;
+// Allow optional NBSPs (U+00A0) around the dash — glueNumericRange replaces spaces with NBSP.
+const NUMERIC_DATE_RE = /^\d{1,2}\.\d{1,2}(?:\.\d{4}| *- *\d{1,2}\.\d{1,2})?$/;
+
+/**
+ * Glue DD.MM ranges with surrounding whitespace into a single token.
+ * Replaces ASCII spaces with NBSP (U+00A0, also 1 char) so the whole
+ * `12.06 - 22.06` becomes one non-splitting unit. Length-preserving.
+ */
+function glueNumericRange(text: string): string {
+  return text.replace(
+    /(\d{1,2}\.\d{1,2})([\t ]+)-([\t ]+)(\d{1,2}\.\d{1,2})/g,
+    (_, a: string, ws1: string, ws2: string, b: string) => `${a}${' '.repeat(ws1.length)}-${' '.repeat(ws2.length)}${b}`,
+  );
+}
 
 export function tokenize(input: string, locale: Locale): Token[] {
   // Apply preprocess chain
   let text = input;
   for (const fn of locale.preprocess) text = fn(text);
 
+  text = glueNumericRange(text);   // length-preserving: spaces → NBSP
   const tokens: Token[] = [];
   const original = input;
   // Preprocess must be length-preserving so positions stay caller-meaningful.
   if (original.length !== text.length) {
     throw new Error('whenis: preprocess must be length-preserving in v0.1');
   }
-  const splitRe = /\s+/g;
+  // ASCII whitespace only; NBSP (U+00A0) is non-splitting so glued ranges stay intact.
+  const splitRe = /[\t\n\r ]+/g;
   let m: RegExpExecArray | null;
   let pos = 0;
   while ((m = splitRe.exec(text)) !== null || pos < text.length) {

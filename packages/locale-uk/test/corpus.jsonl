@@ -62,3 +62,6 @@
 {"input":"десятого серпня","reference":"2026-04-29","expected_date":"2026-08-10"}
 {"input":"двадцять першого травня","reference":"2026-04-29","expected_date":"2026-05-21"}
 {"input":"першого травня можливо","reference":"2026-04-29","expected_date":"2026-05-01","expected_confidence_lt":0.5}
+{"input":"12.06 - 22.06","reference":"2026-04-29","expected_range":{"start":"2026-06-12","end":"2026-06-22"}}
+{"input":"12.06  -  22.06","reference":"2026-04-29","expected_range":{"start":"2026-06-12","end":"2026-06-22"}}
+{"input":"12.06-22.06","reference":"2026-04-29","expected_range":{"start":"2026-06-12","end":"2026-06-22"}}

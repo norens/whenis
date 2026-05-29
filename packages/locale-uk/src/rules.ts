@@ -237,14 +237,19 @@ export const ukDdMmDateRule: Rule = {
   },
 };
 
-// DD.MM-DD.MM — compact range, same month or not, no spaces.
+// DD.MM-DD.MM — compact range, same month or not, with optional NBSP padding around dash.
 export const ukDdMmRangeRule: Rule = {
   name: 'uk-dd-mm-range',
   priority: 100,
-  pattern: [{ kind: 'tag', tag: 'Literal', predicate: (t) => /^\d{1,2}\.\d{1,2}-\d{1,2}\.\d{1,2}$/.test(t.text) }],
+  pattern: [{ kind: 'tag', tag: 'Literal', predicate: (t) => /^\d{1,2}\.\d{1,2} *- *\d{1,2}\.\d{1,2}$/.test(t.text) }],
   produce: (matched) => {
     const t = matched[0] as Token;
-    const m = t.text.match(/^(\d{1,2})\.(\d{1,2})-(\d{1,2})\.(\d{1,2})$/);
+    const parts = t.text.split('-').map(s => s.replace(/ +/g, '').trim());
+    const [fromPart, toPart] = parts;
+    if (!fromPart || !toPart) return null;
+    const mf = fromPart.match(/^(\d{1,2})\.(\d{1,2})$/);
+    const mt = toPart.match(/^(\d{1,2})\.(\d{1,2})$/);
+    const m = mf && mt ? [null, mf[1], mf[2], mt[1], mt[2]] : null;
     if (!m) return null;
     const d1 = +m[1]!, mo1 = +m[2]!, d2 = +m[3]!, mo2 = +m[4]!;
     if (d1 < 1 || d1 > 31 || mo1 < 1 || mo1 > 12) return null;
