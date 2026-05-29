@@ -32,3 +32,7 @@
 {"input":"останні вихідні","reference":"2026-05-28","expected_range":{"start":"2026-05-30","end":"2026-05-31"}}
 {"input":"останні вихідні травня","reference":"2026-05-28","expected_range":{"start":"2026-05-30","end":"2026-05-31"}}
 {"input":"останні вихідні червня","reference":"2026-05-28","expected_range":{"start":"2026-06-27","end":"2026-06-28"}}
+{"input":"15.07","reference":"2026-05-28","expected_date":"2026-07-15"}
+{"input":"15.03","reference":"2026-05-28","expected_date":"2027-03-15"}
+{"input":"12.06.2025","reference":"2026-05-28","expected_date":"2025-06-12","expected_reason":"past_iso"}
+{"input":"12.06-22.06","reference":"2026-05-28","expected_range":{"start":"2026-06-12","end":"2026-06-22","nights":10}}
