@@ -3,7 +3,7 @@ import { ukLexicon, ukStems } from './lexicon';
 import { ukRules } from './rules';
 
 function normalizeApostrophes(s: string): string {
-  return s.replace(/['ʼʹ′´`]/g, "'");
+  return s.replace(/['’ʼʹ′´`]/g, "'");
 }
 
 export const uk: Locale = {

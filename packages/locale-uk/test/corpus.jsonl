@@ -46,3 +46,4 @@
 {"input":"десь у травні","reference":"2026-05-27","expected_reason":"vague_month","expected_metadata":{"suggest_next_month":true}}
 {"input":"десь у травні","reference":"2026-05-04","expected_reason":"vague_month","expected_metadata_absent":"suggest_next_month"}
 {"input":"десь у серпні","reference":"2026-05-27","expected_reason":"vague_month","expected_metadata_absent":"suggest_next_month"}
+{"input":"наступна п’ятниця","reference":"2026-04-29","expected_date":"2026-05-08"}
