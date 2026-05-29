@@ -80,4 +80,56 @@ describe('runRules', () => {
     const tokens: Token[] = [T('hello', [{ kind: 'Literal', text: 'hello' }])];
     expect(runRules(tokens, [])).toEqual([]);
   });
+
+  it('optional pattern item: matches when present (longest match wins)', () => {
+    const tokens: Token[] = [
+      T('через', [{ kind: 'Grabber', modifier: 'in' }]),
+      T('3', [{ kind: 'Numeral', value: 3 }], 6, 7),
+      T('дні', [{ kind: 'TimeUnit', unit: 'day' }], 8, 11),
+    ];
+    const rule: Rule = {
+      name: 'in-optional-n-unit',
+      pattern: [
+        { kind: 'tag', tag: 'Grabber' },
+        { kind: 'tag', tag: 'Numeral', optional: true },
+        { kind: 'tag', tag: 'TimeUnit' },
+      ],
+      produce: (matched) => {
+        const numTok = matched[1] as Token | null;
+        const n = numTok?.tags.find(t => t.kind === 'Numeral');
+        const value = n && n.kind === 'Numeral' ? n.value : 1;
+        return { type: 'duration', days: value };
+      },
+    };
+    const result = runRules(tokens, [rule]);
+    expect(result).toHaveLength(1);
+    expect((result[0]!.node as any).days).toBe(3);
+    expect(result[0]!.start).toBe(0);
+    expect(result[0]!.end).toBe(11);
+  });
+
+  it('optional pattern item: skipped when absent; matched array carries null', () => {
+    const tokens: Token[] = [
+      T('через', [{ kind: 'Grabber', modifier: 'in' }]),
+      T('тиждень', [{ kind: 'TimeUnit', unit: 'week' }], 6, 13),
+    ];
+    let observedNullAt1 = false;
+    const rule: Rule = {
+      name: 'in-optional-n-unit',
+      pattern: [
+        { kind: 'tag', tag: 'Grabber' },
+        { kind: 'tag', tag: 'Numeral', optional: true },
+        { kind: 'tag', tag: 'TimeUnit' },
+      ],
+      produce: (matched) => {
+        observedNullAt1 = matched[1] === null;
+        return { type: 'duration', days: 7 };
+      },
+    };
+    const result = runRules(tokens, [rule]);
+    expect(observedNullAt1).toBe(true);
+    expect(result).toHaveLength(1);
+    expect(result[0]!.start).toBe(0);
+    expect(result[0]!.end).toBe(13);
+  });
 });

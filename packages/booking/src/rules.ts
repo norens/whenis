@@ -11,37 +11,39 @@ function makeWindow(n: number, unit: 'day' | 'week'): IRNode {
   };
 }
 
-// "впродовж 7 днів" — 3-token form
+// "впродовж 7 днів" — also matches "впродовж наступних 7 днів" via optional next-filler
 export const windowWithinNRule: Rule = {
   name: 'booking-window-within',
   priority: 75,
   pattern: [
     { kind: 'tag', tag: 'Grabber', predicate: (t) => t.tags.some(x => x.kind === 'Grabber' && x.modifier === 'within') },
-    { kind: 'tag', tag: 'Numeral' },
-    { kind: 'tag', tag: 'TimeUnit' },
-  ],
-  produce: (matched) => {
-    const n = findTag(matched[1] as Token, 'Numeral');
-    const u = findTag(matched[2] as Token, 'TimeUnit');
-    if (!n || n.kind !== 'Numeral' || !u || u.kind !== 'TimeUnit') return null;
-    if (u.unit !== 'day' && u.unit !== 'week') return null;
-    return makeWindow(n.value, u.unit);
-  },
-};
-
-// "у найближчі 5 днів" — 4-token form with leading «у/в» Connector
-export const windowWithinNWithPrefixRule: Rule = {
-  name: 'booking-window-within-prefixed',
-  priority: 76,
-  pattern: [
-    { kind: 'tag', tag: 'Connector', predicate: (t) => /^[ув]$/i.test(t.text) },
-    { kind: 'tag', tag: 'Grabber', predicate: (t) => t.tags.some(x => x.kind === 'Grabber' && x.modifier === 'within') },
+    { kind: 'tag', tag: 'Grabber', predicate: (t) => t.tags.some(x => x.kind === 'Grabber' && x.modifier === 'next'), optional: true },
     { kind: 'tag', tag: 'Numeral' },
     { kind: 'tag', tag: 'TimeUnit' },
   ],
   produce: (matched) => {
     const n = findTag(matched[2] as Token, 'Numeral');
     const u = findTag(matched[3] as Token, 'TimeUnit');
+    if (!n || n.kind !== 'Numeral' || !u || u.kind !== 'TimeUnit') return null;
+    if (u.unit !== 'day' && u.unit !== 'week') return null;
+    return makeWindow(n.value, u.unit);
+  },
+};
+
+// "у найближчі 5 днів" — also matches "у наступні найближчі 5 днів" via optional next-filler
+export const windowWithinNWithPrefixRule: Rule = {
+  name: 'booking-window-within-prefixed',
+  priority: 76,
+  pattern: [
+    { kind: 'tag', tag: 'Connector', predicate: (t) => /^[ув]$/i.test(t.text) },
+    { kind: 'tag', tag: 'Grabber', predicate: (t) => t.tags.some(x => x.kind === 'Grabber' && x.modifier === 'within') },
+    { kind: 'tag', tag: 'Grabber', predicate: (t) => t.tags.some(x => x.kind === 'Grabber' && x.modifier === 'next'), optional: true },
+    { kind: 'tag', tag: 'Numeral' },
+    { kind: 'tag', tag: 'TimeUnit' },
+  ],
+  produce: (matched) => {
+    const n = findTag(matched[3] as Token, 'Numeral');
+    const u = findTag(matched[4] as Token, 'TimeUnit');
     if (!n || n.kind !== 'Numeral' || !u || u.kind !== 'TimeUnit') return null;
     if (u.unit !== 'day' && u.unit !== 'week') return null;
     return makeWindow(n.value, u.unit);

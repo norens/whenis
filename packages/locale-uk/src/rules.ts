@@ -63,17 +63,19 @@ export const ukThroughNRule: Rule = {
   priority: 70,
   pattern: [
     { kind: 'tag', tag: 'Grabber', predicate: (t) => t.tags.some(x => x.kind === 'Grabber' && x.modifier === 'in') },
-    { kind: 'tag', tag: 'Numeral' },
+    { kind: 'tag', tag: 'Numeral', optional: true },
     { kind: 'tag', tag: 'TimeUnit' },
   ],
   produce: (matched) => {
-    const n = (matched[1] as Token).tags.find(t => t.kind === 'Numeral');
+    const numTok = matched[1] as Token | null;
     const u = (matched[2] as Token).tags.find(t => t.kind === 'TimeUnit');
-    if (!n || n.kind !== 'Numeral' || !u || u.kind !== 'TimeUnit') return null;
+    if (!u || u.kind !== 'TimeUnit') return null;
+    const n = numTok?.tags.find(t => t.kind === 'Numeral');
+    const value = n && n.kind === 'Numeral' ? n.value : 1;
     switch (u.unit) {
-      case 'day':   return { type: 'relative', offset: { days: n.value }, direction: 'future' };
-      case 'week':  return { type: 'relative', offset: { weeks: n.value }, direction: 'future' };
-      case 'month': return { type: 'relative', offset: { months: n.value }, direction: 'future' };
+      case 'day':   return { type: 'relative', offset: { days: value },   direction: 'future' };
+      case 'week':  return { type: 'relative', offset: { weeks: value },  direction: 'future' };
+      case 'month': return { type: 'relative', offset: { months: value }, direction: 'future' };
       default:      return null;
     }
   },
