@@ -21,12 +21,14 @@ export function tokenize(input: string, locale: Locale): Token[] {
     const end = m ? m.index : text.length;
     if (end > pos) {
       const tokText = text.slice(pos, end);
-      tokens.push({
-        text: original.slice(pos, end),
-        start: pos,
-        end,
-        tags: classifyToken(tokText, locale),
-      });
+      if (!locale.skip?.has(tokText)) {
+        tokens.push({
+          text: original.slice(pos, end),
+          start: pos,
+          end,
+          tags: classifyToken(tokText, locale),
+        });
+      }
     }
     if (!m) break;
     pos = m.index + m[0].length;

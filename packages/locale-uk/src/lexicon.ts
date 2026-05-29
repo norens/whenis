@@ -95,6 +95,31 @@ const entries: Array<[string, Tag[]]> = [
   ['вчора',         [{ kind: 'Literal', text: '__yesterday__' }]],
   ['позавчора',     [{ kind: 'Literal', text: '__day_before_yesterday__' }]],
   ['післязавтра',   [{ kind: 'Literal', text: '__day_after_tomorrow__' }]],
+  ['позавтра',      [{ kind: 'Literal', text: '__day_after_tomorrow__' }]],
+
+  // Word-numerals (nominative + accusative + common gender variants)
+  // Used by `через два тижні`, `через сім днів`, etc.
+  ['один',          [{ kind: 'Numeral', value: 1 }]],
+  ['одна',          [{ kind: 'Numeral', value: 1 }]],
+  ['одне',          [{ kind: 'Numeral', value: 1 }]],
+  ['одно',          [{ kind: 'Numeral', value: 1 }]],
+  ['два',           [{ kind: 'Numeral', value: 2 }]],
+  ['дві',           [{ kind: 'Numeral', value: 2 }]],
+  ['три',           [{ kind: 'Numeral', value: 3 }]],
+  ['чотири',        [{ kind: 'Numeral', value: 4 }]],
+  ["п'ять",         [{ kind: 'Numeral', value: 5 }]],
+  ['шість',         [{ kind: 'Numeral', value: 6 }]],
+  ['сім',           [{ kind: 'Numeral', value: 7 }]],
+  ['вісім',         [{ kind: 'Numeral', value: 8 }]],
+  ["дев'ять",       [{ kind: 'Numeral', value: 9 }]],
+  ['десять',        [{ kind: 'Numeral', value: 10 }]],
+  ['одинадцять',    [{ kind: 'Numeral', value: 11 }]],
+  ['дванадцять',    [{ kind: 'Numeral', value: 12 }]],
+  ['тринадцять',    [{ kind: 'Numeral', value: 13 }]],
+  ['чотирнадцять',  [{ kind: 'Numeral', value: 14 }]],
+  ["п'ятнадцять",   [{ kind: 'Numeral', value: 15 }]],
+  ['двадцять',      [{ kind: 'Numeral', value: 20 }]],
+  ['тридцять',      [{ kind: 'Numeral', value: 30 }]],
 ];
 
 export const ukLexicon = new Map(entries);
