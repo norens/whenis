@@ -101,6 +101,31 @@ export const weekendThisRule: Rule = {
   }),
 };
 
+// "останні вихідні [травня]" — last Saturday-Sunday pair of the named (or current) month.
+export const weekendLastOfMonthRule: Rule = {
+  name: 'booking-weekend-last-of-month',
+  priority: 82,
+  pattern: [
+    { kind: 'tag', tag: 'Grabber', predicate: (t) => t.tags.some(x => x.kind === 'Grabber' && x.modifier === 'last') },
+    { kind: 'tag', tag: 'Literal', predicate: (t) => /вихідн/i.test(t.text) },
+    { kind: 'tag', tag: 'MonthName', optional: true },
+  ],
+  produce: (matched) => {
+    const monthTok = matched[2] as Token | null;
+    const mTag = monthTok?.tags.find(t => t.kind === 'MonthName');
+    const month = mTag && mTag.kind === 'MonthName' ? mTag.month : undefined;
+    const start: IRNode = month !== undefined
+      ? { type: 'last_weekday_in_month', weekday: 6, month }
+      : { type: 'last_weekday_in_month', weekday: 6 };
+    return {
+      type: 'range',
+      start,
+      end:   { type: 'offset_from', base: start, days: 1 },
+      convention: 'checkout',
+    };
+  },
+};
+
 // "після свят" — neither word has a tag in default UA lexicon, both arrive as Literal.
 export const holidayPislyaRule: Rule = {
   name: 'booking-holiday-pislya',
@@ -166,6 +191,7 @@ export const bookingRules: Rule[] = [
   stayDurationRule,
   weekendNextRule,
   weekendThisRule,
+  weekendLastOfMonthRule,
   holidayPislyaRule,
   holidayNaRule,
 ];

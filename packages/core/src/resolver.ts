@@ -38,7 +38,20 @@ export function resolve(node: IRNode, ctx: ResolverCtx): ResolvedDate[] {
       return resolveBoundary(node, ctx);
     case 'offset_from':
       return resolveOffsetFrom(node, ctx);
+    case 'last_weekday_in_month':
+      return resolveLastWeekdayInMonth(node, ctx);
   }
+}
+
+function resolveLastWeekdayInMonth(node: Extract<IRNode, { type: 'last_weekday_in_month' }>, ctx: ResolverCtx): ResolvedDate[] {
+  const ref = DateTime.fromJSDate(ctx.reference, { zone: ctx.timezone });
+  const month = node.month ?? ref.month;
+  const year = ref.year;
+  const lastDay = DateTime.fromObject({ year, month }, { zone: ctx.timezone }).endOf('month').startOf('day');
+  // Luxon weekday: Mon=1..Sun=7. Walk back to the target weekday.
+  const delta = (lastDay.weekday - node.weekday + 7) % 7;
+  const target = lastDay.minus({ days: delta });
+  return [{ confidence: 1, type: 'date', date: target.toISODate()!, granularity: 'day' }];
 }
 
 function resolveOffsetFrom(node: Extract<IRNode, { type: 'offset_from' }>, ctx: ResolverCtx): ResolvedDate[] {
