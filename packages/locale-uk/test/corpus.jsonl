@@ -27,3 +27,5 @@
 {"input":"до кінця тижня","reference":"2026-05-28","expected_window":{"start":"2026-05-28","end":"2026-05-31"}}
 {"input":"до кінця місяця","reference":"2026-05-28","expected_window":{"start":"2026-05-28","end":"2026-05-31"}}
 {"input":"2025-12-01","reference":"2026-05-28","expected_date":"2025-12-01","expected_reason":"past_iso"}
+{"input":"5 червня на 2 ночі","reference":"2026-05-28","expected_range":{"start":"2026-06-05","end":"2026-06-07","nights":2}}
+{"input":"з 5 червня на 3 ночі","reference":"2026-05-28","expected_range":{"start":"2026-06-05","end":"2026-06-08","nights":3}}

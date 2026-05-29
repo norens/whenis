@@ -36,7 +36,16 @@ export function resolve(node: IRNode, ctx: ResolverCtx): ResolvedDate[] {
       return resolveRelative(node, ctx);
     case 'boundary':
       return resolveBoundary(node, ctx);
+    case 'offset_from':
+      return resolveOffsetFrom(node, ctx);
   }
+}
+
+function resolveOffsetFrom(node: Extract<IRNode, { type: 'offset_from' }>, ctx: ResolverCtx): ResolvedDate[] {
+  const base = resolve(node.base, ctx)[0];
+  if (!base?.date) return [{ confidence: 0, type: 'fuzzy', reason: 'offset_base_unresolved' }];
+  const dt = DateTime.fromISO(base.date, { zone: ctx.timezone }).plus({ days: node.days });
+  return [{ confidence: 1, type: 'date', date: dt.toISODate()!, granularity: 'day' }];
 }
 
 function resolveBoundary(node: Extract<IRNode, { type: 'boundary' }>, ctx: ResolverCtx): ResolvedDate[] {
