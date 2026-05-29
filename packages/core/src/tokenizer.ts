@@ -6,7 +6,7 @@ const NUMBER_RE = /^-?\d+(?:\.\d+)*$/;
  *  date rules can interpret them — without the guard, NUMBER_RE would swallow
  *  `15.07` as the float 15.07 and `12.06.2025` as NaN. */
 // Allow optional NBSPs (U+00A0) around the dash — glueNumericRange replaces spaces with NBSP.
-const NUMERIC_DATE_RE = /^\d{1,2}\.\d{1,2}(?:\.\d{4}| *- *\d{1,2}\.\d{1,2})?$/;
+const NUMERIC_DATE_RE = /^\d{1,2}\.\d{1,2}(?:\.\d{4}|\u00a0*-\u00a0*\d{1,2}\.\d{1,2})?$/;
 
 /**
  * Glue DD.MM ranges with surrounding whitespace into a single token.
@@ -16,7 +16,7 @@ const NUMERIC_DATE_RE = /^\d{1,2}\.\d{1,2}(?:\.\d{4}| *- *\d{1,2}\.\d{1,2})?$/
 function glueNumericRange(text: string): string {
   return text.replace(
     /(\d{1,2}\.\d{1,2})([\t ]+)-([\t ]+)(\d{1,2}\.\d{1,2})/g,
-    (_, a: string, ws1: string, ws2: string, b: string) => `${a}${' '.repeat(ws1.length)}-${' '.repeat(ws2.length)}${b}`,
+    (_, a: string, ws1: string, ws2: string, b: string) => `${a}${'\u00a0'.repeat(ws1.length)}-${'\u00a0'.repeat(ws2.length)}${b}`,
   );
 }
 

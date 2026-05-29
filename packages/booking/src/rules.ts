@@ -205,7 +205,7 @@ export const bookingTags = new Map<string, Tag[]>([
   ['впродовж', [{ kind: 'Grabber', modifier: 'within' }]],
   ['найближчі', [{ kind: 'Grabber', modifier: 'within' }]],
   ['найближчих', [{ kind: 'Grabber', modifier: 'within' }]],
-  ['у', [{ kind: 'Connector', conn: 'from' }]],
-  ['в', [{ kind: 'Connector', conn: 'from' }]],
+  ['у', [{ kind: 'Connector', conn: 'in' }]],
+  ['в', [{ kind: 'Connector', conn: 'in' }]],
   ['на', [{ kind: 'Connector', conn: 'from' }]],
 ]);

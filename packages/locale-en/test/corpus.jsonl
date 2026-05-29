@@ -7,3 +7,5 @@
 {"input":"this weekend","reference":"2026-04-29","expected_range":{"start":"2026-05-02","end":"2026-05-03"}}
 {"input":"next weekend","reference":"2026-04-29","expected_range":{"start":"2026-05-09","end":"2026-05-10"}}
 {"input":"last weekend","reference":"2026-04-29","expected_range":{"start":"2026-04-25","end":"2026-04-26"}}
+{"input":"this weekend","reference":"2026-05-02","expected_range":{"start":"2026-05-02","end":"2026-05-03"}}
+{"input":"this weekend","reference":"2026-05-03","expected_range":{"start":"2026-05-02","end":"2026-05-03"}}

@@ -58,12 +58,15 @@ export const thisWeekendRule: Rule = {
     { kind: 'tag', tag: 'Pointer', predicate: (t) => t.tags.some(x => x.kind === 'Pointer' && x.direction === 'this') },
     { kind: 'tag', tag: 'Literal', predicate: (t) => t.tags.some(x => x.kind === 'Literal' && x.text === '__weekend__') },
   ],
-  produce: () => ({
-    type: 'range',
-    start: { type: 'weekday', weekday: 6, modifier: 'this' },
-    end:   { type: 'weekday', weekday: 7, modifier: 'this' },
-    convention: 'checkout',
-  }),
+  produce: () => {
+    const sat = { type: 'weekday' as const, weekday: 6, modifier: 'this' as const };
+    return {
+      type: 'range',
+      start: sat,
+      end:   { type: 'offset_from' as const, base: sat, days: 1 },
+      convention: 'checkout',
+    };
+  },
 };
 
 export const nextWeekendRule: Rule = {
@@ -73,12 +76,15 @@ export const nextWeekendRule: Rule = {
     { kind: 'tag', tag: 'Grabber', predicate: (t) => t.tags.some(x => x.kind === 'Grabber' && x.modifier === 'next') },
     { kind: 'tag', tag: 'Literal', predicate: (t) => t.tags.some(x => x.kind === 'Literal' && x.text === '__weekend__') },
   ],
-  produce: () => ({
-    type: 'range',
-    start: { type: 'weekday', weekday: 6, modifier: 'next' },
-    end:   { type: 'weekday', weekday: 7, modifier: 'next' },
-    convention: 'checkout',
-  }),
+  produce: () => {
+    const sat = { type: 'weekday' as const, weekday: 6, modifier: 'next' as const };
+    return {
+      type: 'range',
+      start: sat,
+      end:   { type: 'offset_from' as const, base: sat, days: 1 },
+      convention: 'checkout',
+    };
+  },
 };
 
 export const lastWeekendRule: Rule = {
@@ -88,12 +94,15 @@ export const lastWeekendRule: Rule = {
     { kind: 'tag', tag: 'Grabber', predicate: (t) => t.tags.some(x => x.kind === 'Grabber' && x.modifier === 'last') },
     { kind: 'tag', tag: 'Literal', predicate: (t) => t.tags.some(x => x.kind === 'Literal' && x.text === '__weekend__') },
   ],
-  produce: () => ({
-    type: 'range',
-    start: { type: 'weekday', weekday: 6, modifier: 'last' },
-    end:   { type: 'weekday', weekday: 7, modifier: 'last' },
-    convention: 'checkout',
-  }),
+  produce: () => {
+    const sat = { type: 'weekday' as const, weekday: 6, modifier: 'last' as const };
+    return {
+      type: 'range',
+      start: sat,
+      end:   { type: 'offset_from' as const, base: sat, days: 1 },
+      convention: 'checkout',
+    };
+  },
 };
 
 export const enRules: Rule[] = [todayRule, tomorrowRule, yesterdayRule, nextWeekdayRule, thisWeekdayRule, thisWeekendRule, nextWeekendRule, lastWeekendRule];

@@ -93,7 +93,7 @@ particular candidate. Stable names:
   current month and ≥75% elapsed.
 - `vague_qualified` — a confident inner read (date/weekday/range) wrapped by
   a vague marker (`приблизно`, `можливо`). Emitted as TWO candidates: the
-  inner reading at lower confidence (0.4) + a fuzzy candidate at 0. Callers
+  inner reading downgraded to 40% of its original confidence + a fuzzy candidate at 0. Callers
   who want "refuse on vagueness" filter `confidence < 0.5`; callers who want
   the literal reading take the top candidate.
 - `this_week_past_fallback_next` — `цю п'ятницю` from a day when this week's
