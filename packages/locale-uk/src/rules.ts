@@ -207,6 +207,28 @@ export const ukDdMmRangeRule: Rule = {
   },
 };
 
+// "на вихідні" → nearest upcoming Saturday-Sunday pair.
+// Uses offset_from to anchor Sunday relative to the resolved Saturday, avoiding
+// the edge case where `nearest` Sunday lands before `nearest` Saturday when the
+// reference day is Saturday (delta=1 → tomorrow, but `nearest` Sat jumped +7).
+export const naVihidniRule: Rule = {
+  name: 'uk:na-vihidni',
+  priority: 40,
+  pattern: [
+    { kind: 'tag', tag: 'Connector', predicate: (t) => /^на$/i.test(t.text) },
+    { kind: 'tag', tag: 'Literal',   predicate: (t) => /вихідн/i.test(t.text) },
+  ],
+  produce: () => {
+    const startNode = { type: 'weekday' as const, weekday: 6, modifier: 'nearest' as const };
+    return {
+      type: 'range',
+      start: startNode,
+      end:   { type: 'offset_from', base: startNode, days: 1 },
+      convention: 'checkout',
+    };
+  },
+};
+
 // "десь у травні" / "приблизно в серпні" → fuzzy{granularity:'month'}
 export const vagueMonthRule: Rule = {
   name: 'uk:vague-month',
@@ -236,5 +258,6 @@ export const ukRules: Rule[] = [
   ukUntilEndOfRule,
   ukRangeUntilRule, ukRangeThroughRule,
   ukDayMonthRule,
+  naVihidniRule,
   vagueMonthRule,
 ];
