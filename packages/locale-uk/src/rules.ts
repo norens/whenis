@@ -166,7 +166,49 @@ export const ukUntilEndOfRule: Rule = {
   },
 };
 
+// DD.MM, DD.MM.YYYY — numeric date in Ukrainian DMY order. Tokenizer kept the
+// dot-separated form as a single Literal so this rule can re-parse it.
+export const ukDdMmDateRule: Rule = {
+  name: 'uk-dd-mm-date',
+  priority: 100,
+  pattern: [{ kind: 'tag', tag: 'Literal', predicate: (t) => /^\d{1,2}\.\d{1,2}(?:\.\d{4})?$/.test(t.text) }],
+  produce: (matched) => {
+    const t = matched[0] as Token;
+    const m = t.text.match(/^(\d{1,2})\.(\d{1,2})(?:\.(\d{4}))?$/);
+    if (!m) return null;
+    const day = +m[1]!;
+    const month = +m[2]!;
+    if (day < 1 || day > 31 || month < 1 || month > 12) return null;
+    const year = m[3] !== undefined ? +m[3]! : undefined;
+    return year !== undefined
+      ? { type: 'absolute', year, month, day }
+      : { type: 'absolute', month, day };
+  },
+};
+
+// DD.MM-DD.MM — compact range, same month or not, no spaces.
+export const ukDdMmRangeRule: Rule = {
+  name: 'uk-dd-mm-range',
+  priority: 100,
+  pattern: [{ kind: 'tag', tag: 'Literal', predicate: (t) => /^\d{1,2}\.\d{1,2}-\d{1,2}\.\d{1,2}$/.test(t.text) }],
+  produce: (matched) => {
+    const t = matched[0] as Token;
+    const m = t.text.match(/^(\d{1,2})\.(\d{1,2})-(\d{1,2})\.(\d{1,2})$/);
+    if (!m) return null;
+    const d1 = +m[1]!, mo1 = +m[2]!, d2 = +m[3]!, mo2 = +m[4]!;
+    if (d1 < 1 || d1 > 31 || mo1 < 1 || mo1 > 12) return null;
+    if (d2 < 1 || d2 > 31 || mo2 < 1 || mo2 > 12) return null;
+    return {
+      type: 'range',
+      start: { type: 'absolute', month: mo1, day: d1 },
+      end:   { type: 'absolute', month: mo2, day: d2 },
+      convention: 'checkout',
+    };
+  },
+};
+
 export const ukRules: Rule[] = [
+  ukDdMmDateRule, ukDdMmRangeRule,
   ukTodayRule, ukTomorrowRule, ukYesterdayRule, ukDayAfterTomorrowRule,
   ukNextWeekdayRule, ukThisWeekdayRule,
   ukThroughNRule,
