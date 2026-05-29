@@ -145,10 +145,32 @@ export const ukRangeThroughRule: Rule = {
   },
 };
 
+// "до кінця тижня" / "до кінця місяця" → window from today to end-of-period
+export const ukUntilEndOfRule: Rule = {
+  name: 'uk-until-end-of',
+  priority: 78,
+  pattern: [
+    { kind: 'tag', tag: 'Connector', predicate: (t) => t.tags.some(x => x.kind === 'Connector' && x.conn === 'to') },
+    { kind: 'tag', tag: 'Literal',   predicate: (t) => t.tags.some(x => x.kind === 'Literal' && x.text === '__end_of__') },
+    { kind: 'tag', tag: 'TimeUnit' },
+  ],
+  produce: (matched) => {
+    const u = (matched[2] as Token).tags.find(t => t.kind === 'TimeUnit');
+    if (!u || u.kind !== 'TimeUnit') return null;
+    if (u.unit !== 'week' && u.unit !== 'month' && u.unit !== 'year') return null;
+    return {
+      type: 'window',
+      from: { type: 'relative', offset: { days: 0 }, direction: 'this' },
+      to:   { type: 'boundary', unit: u.unit, edge: 'end' },
+    };
+  },
+};
+
 export const ukRules: Rule[] = [
   ukTodayRule, ukTomorrowRule, ukYesterdayRule, ukDayAfterTomorrowRule,
   ukNextWeekdayRule, ukThisWeekdayRule,
   ukThroughNRule,
+  ukUntilEndOfRule,
   ukRangeUntilRule, ukRangeThroughRule,
   ukDayMonthRule,
 ];

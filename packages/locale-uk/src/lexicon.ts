@@ -89,7 +89,9 @@ const entries: Array<[string, Tag[]]> = [
   ['ночі',  [{ kind: 'TimeUnit', unit: 'night' }]],
   ['ночей', [{ kind: 'TimeUnit', unit: 'night' }]],
   ['тиждень', [{ kind: 'TimeUnit', unit: 'week' }]],
+  ['тижня',   [{ kind: 'TimeUnit', unit: 'week' }]],
   ['тижні',   [{ kind: 'TimeUnit', unit: 'week' }]],
+  ['тижнем',  [{ kind: 'TimeUnit', unit: 'week' }]],
   ['тижнів',  [{ kind: 'TimeUnit', unit: 'week' }]],
   ['місяць',  [{ kind: 'TimeUnit', unit: 'month' }]],
   ['місяця',  [{ kind: 'TimeUnit', unit: 'month' }]],
@@ -102,6 +104,10 @@ const entries: Array<[string, Tag[]]> = [
   ['позавчора',     [{ kind: 'Literal', text: '__day_before_yesterday__' }]],
   ['післязавтра',   [{ kind: 'Literal', text: '__day_after_tomorrow__' }]],
   ['позавтра',      [{ kind: 'Literal', text: '__day_after_tomorrow__' }]],
+
+  // End-of-period marker for «до кінця тижня/місяця»
+  ['кінця',         [{ kind: 'Literal', text: '__end_of__' }]],
+  ['кінець',        [{ kind: 'Literal', text: '__end_of__' }]],
 
   // Word-numerals (nominative + accusative + common gender variants)
   // Used by `через два тижні`, `через сім днів`, etc.
