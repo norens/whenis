@@ -12,6 +12,6 @@
 - `mostlyPastEnricher` now correctly checks the candidate's referenced month against the current month before attaching `suggest_next_month` — previously it fired on any fuzzy-month candidate when the current calendar month was ≥75% elapsed.
 - EN: `this`/`next`/`last weekend` rules. (GAP-14)
 - UA: `на вихідні` (GAP-15), `найближч*` as `Grabber:nearest` wired to weekday and weekend rules (GAP-16), optional `в`/`у` filler in `останні вихідні` (GAP-17), ordinal day-of-month (`першого травня`, `двадцять першого травня`) (GAP-18), DD.MM range with whitespace around dash (`12.06 - 22.06`) (GAP-21), `U+2019` right-single-quote in apostrophe normalization (GAP-12).
-- New: `packages/booking/test/hutshub-smoke.test.ts` runs the 74-case input universe from `hutshub-chatbot/DateResolverService.test.ts` and confirms 74/74 PASS.
+- New: `packages/booking/test/integration-corpus.test.ts` — 74-case integration smoke harness covering every IR shape end-to-end through the UA + EN + booking stack. Mirrored as `scripts/smoke-corpus.mjs` for standalone runs.
 
 **Breaking (minor under 0.x):** `ResolvedDate.reason: 'past_iso'` renamed to `'past_date'`. The reason vocabulary is now documented in `CONTRIBUTING.md`. Adapter consumers should update their reason-mapping tables.

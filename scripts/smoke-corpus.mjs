@@ -1,43 +1,38 @@
-// Vitest port of scripts/smoke-hutshub.mjs
-// 74 representative inputs from hutshub-chatbot/test/services/tools/DateResolverService.test.ts
-// Reference (anchor) = 2026-04-29 (Wed), tz = Europe/Kyiv.
+// Integration smoke harness: 74 representative real-world inputs covering
+// every IR shape (DD.MM, weekdays, weekend phrases, ranges, windows, durations,
+// vague markers, holiday refs) parsed through the full UA + EN + booking stack.
+// Reports PASS/FAIL counts and per-case diagnostics.
+//
+// Reference anchor = 2026-04-29 (Wed), tz = Europe/Kyiv. Some cases override
+// via their own `today` field.
+//
+// Canonical version is packages/booking/test/integration-corpus.test.ts under
+// vitest. This standalone runner exists for quick iteration without vitest;
+// keep both in sync.
 
-import { describe, it, expect } from 'vitest';
-import { createParser } from '@whenis/core';
-import { uk } from '@whenis/locale-uk';
-import { en } from '@whenis/locale-en';
-import { booking } from '../src/index';
+import { createParser } from '../packages/core/dist/index.js';
+import { uk } from '../packages/locale-uk/dist/index.js';
+import { en } from '../packages/locale-en/dist/index.js';
+import { booking } from '../packages/booking/dist/index.js';
 
-const parser = createParser({ locales: [uk, en], plugins: [booking] });
+const parser = createParser({
+  locales: [uk, en],
+  plugins: [booking],
+});
+
 const DEFAULT_TODAY = '2026-04-29';
 
-interface Expect {
-  date?: string;
-  end?: string;
-  nights?: number;
-  window?: { from: string; to: string };
-  reason?: string;
-  unresolved?: boolean;
-  dateNull?: boolean;
-  noWeekday?: boolean;
-  suggestNextMonth?: boolean;
-}
-interface Case {
-  id: string;
-  input: string;
-  today?: string;
-  expect: Expect;
-}
-
-const CASES: Case[] = [
+// Each case: { input, today?, expect: { date?, range_end?, nights?, window?, reason? } }
+// Only what's relevant to the assertion is included.
+const CASES = [
   // DD.MM family (GAP-2)
-  { id: 'HH-2886/range', input: '12.06-22.06', expect: { date: '2026-06-12', end: '2026-06-22' } },
-  { id: 'HH-2886/range-spaces', input: '12.06 - 22.06', expect: { date: '2026-06-12', end: '2026-06-22' } },
-  { id: 'HH-2886/range-current-yr', input: '01.05-03.05', expect: { date: '2026-05-01', end: '2026-05-03' } },
-  { id: 'HH-2886/past-rolls', input: '15.04', today: '2026-04-29', expect: { date: '2027-04-15' } },
-  { id: 'HH-2886/future-stays', input: '15.07', expect: { date: '2026-07-15' } },
-  { id: 'HH-2886/full-yyyy', input: '12.06.2025', expect: { date: '2025-06-12' } },
-  { id: 'HH-2886/invalid', input: '40.13', expect: { unresolved: true } },
+  { id: 'dd-mm/range', input: '12.06-22.06', expect: { date: '2026-06-12', end: '2026-06-22' } },
+  { id: 'dd-mm/range-spaces', input: '12.06 - 22.06', expect: { date: '2026-06-12', end: '2026-06-22' } },
+  { id: 'dd-mm/range-current-yr', input: '01.05-03.05', expect: { date: '2026-05-01', end: '2026-05-03' } },
+  { id: 'dd-mm/past-rolls', input: '15.04', today: '2026-04-29', expect: { date: '2027-04-15' } },
+  { id: 'dd-mm/future-stays', input: '15.07', expect: { date: '2026-07-15' } },
+  { id: 'dd-mm/full-yyyy', input: '12.06.2025', expect: { date: '2025-06-12' } },
+  { id: 'dd-mm/invalid', input: '40.13', expect: { unresolved: true } },
 
   // Immediate keywords
   { id: 'imm/today', input: 'сьогодні', expect: { date: '2026-04-29' } },
@@ -54,8 +49,8 @@ const CASES: Case[] = [
   { id: 'wd/наступний-пн', input: 'наступний понеділок', expect: { date: '2026-05-04' } },
   { id: 'wd/наступну-середу-from-wed', input: 'наступну середу', expect: { date: '2026-05-06' } },
   { id: 'wd/цю-пятницю', input: "цю п'ятницю", expect: { date: '2026-05-01' } },
-  // "цей понеділок" from Wednesday: Monday has already passed this week.
-  // whenis emits next Monday (2026-05-04) with reason=this_week_past_fallback_next.
+  // "цей понеділок" from Wednesday: Monday already passed; whenis emits next Monday
+  // with reason=this_week_past_fallback_next (not past_date).
   { id: 'wd/this-monday-from-wed-past', input: 'цей понеділок', expect: { reason: 'this_week_past_fallback_next' } },
 
   // Через N
@@ -116,7 +111,6 @@ const CASES: Case[] = [
   { id: 'vague/trailing-ord', input: 'першого травня можливо', expect: { unresolved: true } },
 
   // Vague + mostly past (mostlyPastEnricher)
-  // metadata key is suggest_next_month (snake_case) per enricher implementation
   { id: 'vague/mostly-past', input: 'десь у травні', today: '2026-05-27', expect: { suggestNextMonth: true } },
   { id: 'vague/early-month', input: 'десь у травні', today: '2026-05-04', expect: { reason: 'vague_month' } },
 
@@ -148,66 +142,107 @@ const CASES: Case[] = [
   { id: 'gap10/5-черв-на-2', input: '5 червня на 2 ночі', expect: { date: '2026-06-05', end: '2026-06-07', nights: 2 } },
 ];
 
-function pickBest(parseResult: ReturnType<typeof parser.parse>) {
+function pickBest(parseResult) {
   if (!parseResult.matches.length) return null;
+  // Take the longest-span match's top candidate
   const m = parseResult.matches.reduce((a, b) => (b.end - b.start > a.end - a.start ? b : a));
   return { match: m, cand: m.candidates[0] ?? null };
 }
 
-describe('hutshub smoke — 74 inputs from DateResolverService.test.ts', () => {
-  for (const c of CASES) {
-    it(`[${c.id}] "${c.input}"`, () => {
-      const ref = new Date(`${c.today ?? DEFAULT_TODAY}T12:00:00Z`);
-      const result = parser.parse(c.input, { reference: ref, timezone: 'Europe/Kyiv' });
-      const best = pickBest(result);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const cand: any = best?.cand;
-      const exp = c.expect;
+function reasonOf(c) {
+  return c?.reason ?? c?.metadata?.reason;
+}
 
-      if (exp.unresolved) {
-        if (!cand || cand.confidence === 0 || cand.type === 'fuzzy' || (cand.reason && cand.reason !== 'past_date')) return;
-        throw new Error(`expected unresolved, got ${cand.type} ${cand.date ?? cand.start ?? ''}`);
-      }
-      if (exp.reason) {
-        const r = cand?.reason ?? cand?.metadata?.reason;
-        expect(r).toBe(exp.reason);
-        return;
-      }
-      if (exp.dateNull && exp.nights !== undefined) {
-        expect(cand?.nights).toBe(exp.nights);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        expect(cand?.date).toBeFalsy();
-        return;
-      }
-      if (exp.window) {
-        expect(cand?.type).toBe('window');
-        expect(cand?.start).toBe(exp.window.from);
-        expect(cand?.end).toBe(exp.window.to);
-        return;
-      }
-      if (exp.noWeekday) {
-        if (!cand) return;
-        expect(cand.type).not.toBe('date');
-        return;
-      }
-      if (exp.date && exp.end) {
-        const start = cand?.start ?? cand?.date;
-        expect(start).toBe(exp.date);
-        expect(cand?.end).toBe(exp.end);
-        if (exp.nights !== undefined) expect(cand?.nights).toBe(exp.nights);
-        return;
-      }
-      if (exp.date) {
-        const start = cand?.date ?? cand?.start;
-        expect(start).toBe(exp.date);
-        return;
-      }
-      if (exp.suggestNextMonth) {
-        // enricher sets metadata.suggest_next_month (snake_case)
-        expect(cand?.metadata?.suggest_next_month).toBe(true);
-        return;
-      }
-      throw new Error(`unhandled expectation for ${c.id}`);
-    });
+function evaluate(c, exp) {
+  // unresolved expectations: a parse may still produce a fuzzy/0-conf candidate
+  if (exp.unresolved) {
+    if (!c) return { ok: true };
+    if (c.confidence === 0 || c.type === 'fuzzy') return { ok: true };
+    if (c.reason && c.reason !== 'past_date') return { ok: true };
+    return { ok: false, why: `got resolved (${c.type} ${c.date ?? c.start ?? ''})` };
   }
-});
+  if (exp.reason) {
+    if (reasonOf(c) === exp.reason) return { ok: true };
+    return { ok: false, why: `reason=${reasonOf(c) ?? 'none'} expected=${exp.reason}` };
+  }
+  if (exp.dateNull && exp.nights !== undefined) {
+    if (!c) return { ok: false, why: 'no candidate' };
+    if (c.nights === exp.nights && !c.date) return { ok: true };
+    return { ok: false, why: `nights=${c.nights} date=${c.date} expected nights=${exp.nights} date=null` };
+  }
+  if (exp.window) {
+    if (!c) return { ok: false, why: 'no candidate' };
+    if (c.type === 'window' && c.start === exp.window.from && c.end === exp.window.to) return { ok: true };
+    return { ok: false, why: `got ${c.type} ${c.start ?? c.date}..${c.end} expected window ${exp.window.from}..${exp.window.to}` };
+  }
+  if (exp.noWeekday) {
+    if (!c) return { ok: true };
+    // A weekday rule would emit a 'date' candidate near anchor; if none, fine.
+    return { ok: c.type !== 'date', why: `unexpected ${c.type} ${c.date}` };
+  }
+  if (exp.date && exp.end) {
+    if (!c) return { ok: false, why: 'no candidate' };
+    const start = c.start ?? c.date;
+    if (start === exp.date && c.end === exp.end) {
+      if (exp.nights !== undefined && c.nights !== exp.nights) {
+        return { ok: false, why: `nights=${c.nights} expected ${exp.nights}` };
+      }
+      return { ok: true };
+    }
+    return { ok: false, why: `${start}..${c.end} expected ${exp.date}..${exp.end}` };
+  }
+  if (exp.date) {
+    if (!c) return { ok: false, why: 'no candidate' };
+    const start = c.date ?? c.start;
+    if (start === exp.date) return { ok: true };
+    return { ok: false, why: `got ${c.type} ${start} expected date ${exp.date}` };
+  }
+  if (exp.suggestNextMonth) {
+    // enricher sets metadata.suggest_next_month (snake_case)
+    if (c?.metadata?.suggest_next_month) return { ok: true };
+    return { ok: false, why: `metadata.suggest_next_month missing (${JSON.stringify(c?.metadata)})` };
+  }
+  return { ok: false, why: 'unhandled expectation' };
+}
+
+const results = [];
+for (const c of CASES) {
+  const today = c.today ?? DEFAULT_TODAY;
+  const ref = new Date(`${today}T12:00:00Z`);
+  let res;
+  try {
+    res = parser.parse(c.input, { reference: ref, timezone: 'Europe/Kyiv' });
+  } catch (e) {
+    results.push({ id: c.id, ok: false, why: `parser threw: ${e.message}`, cand: null, input: c.input });
+    continue;
+  }
+  const best = pickBest(res);
+  const verdict = evaluate(best?.cand, c.expect);
+  results.push({
+    id: c.id,
+    input: c.input,
+    today,
+    ok: verdict.ok,
+    why: verdict.why,
+    cand: best?.cand ?? null,
+    matchText: best?.match?.text,
+    nMatches: res.matches.length,
+  });
+}
+
+const pass = results.filter(r => r.ok);
+const fail = results.filter(r => !r.ok);
+
+console.log(`PASS ${pass.length} / FAIL ${fail.length} / TOTAL ${results.length}\n`);
+
+console.log('--- FAILURES ---');
+for (const r of fail) {
+  console.log(`[${r.id}]  "${r.input}"  (today=${r.today})`);
+  console.log(`   why:    ${r.why}`);
+  console.log(`   match:  ${r.matchText ?? '(no match)'}  (${r.nMatches} matches)`);
+  if (r.cand) {
+    const c = r.cand;
+    console.log(`   cand:   type=${c.type} conf=${c.confidence} date=${c.date} start=${c.start} end=${c.end} nights=${c.nights} reason=${c.reason} metadata=${JSON.stringify(c.metadata ?? {})}`);
+  }
+  console.log('');
+}
