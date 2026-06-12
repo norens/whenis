@@ -1,4 +1,4 @@
-// Integration smoke harness: 74 representative real-world inputs covering
+// Integration smoke harness: 79 representative real-world inputs covering
 // every IR shape (DD.MM, weekdays, weekend phrases, ranges, windows, durations,
 // vague markers, holiday refs) parsed through the full UA + EN + booking stack.
 // Reports PASS/FAIL counts and per-case diagnostics.
@@ -140,6 +140,13 @@ const CASES = [
   // Date + nights (GAP-10)
   { id: 'gap10/з-5-черв-на-3', input: 'з 5 червня на 3 ночі', expect: { date: '2026-06-05', end: '2026-06-08', nights: 3 } },
   { id: 'gap10/5-черв-на-2', input: '5 червня на 2 ночі', expect: { date: '2026-06-05', end: '2026-06-07', nights: 2 } },
+
+  // Day range with single month (GAP-22)
+  { id: 'gap22/dd-dd.mm', input: '22-25.06', expect: { date: '2026-06-22', end: '2026-06-25' } },
+  { id: 'gap22/dd-dd-month', input: '22-25 червня', expect: { date: '2026-06-22', end: '2026-06-25' } },
+  { id: 'gap22/spaced-dot', input: '22 - 25.06', expect: { date: '2026-06-22', end: '2026-06-25' } },
+  { id: 'gap22/spaced-month', input: '22 - 25 червня', expect: { date: '2026-06-22', end: '2026-06-25' } },
+  { id: 'gap22/past-rolls', input: '1-3 квітня', expect: { date: '2027-04-01', end: '2027-04-03' } },
 ];
 
 function pickBest(parseResult) {
