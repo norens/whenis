@@ -1,5 +1,23 @@
 # @whenis/booking
 
+## 0.5.0
+
+### Minor Changes
+
+- [#15](https://github.com/norens/whenis/pull/15) [`0b5aff5`](https://github.com/norens/whenis/commit/0b5aff55cccb91e69c2ac2b7784a6241efd4493b) Thanks [@norens](https://github.com/norens)! - **GAP-22 — day range with the month written once**
+
+  UA locale now parses day ranges where the month appears once after the second day:
+
+  - `22-25.06` / `22 - 25.06` → range Jun 22 → Jun 25 (checkout convention)
+  - `22-25 червня` / `22 - 25 червня` → same range
+  - en/em dashes accepted in the compact forms
+  - past ranges roll to the next year, same as `DD.MM`
+  - reversed pairs (`25-22.06`) are rejected as typos, not wrapped around
+
+  Spaced variants are handled by a compound rule that consumes the already-reduced
+  `absolute` node on the right-hand side, so they compose with both `DD.MM` and
+  `<day> <month>` spellings without tokenizer changes.
+
 ## 0.4.0
 
 ### Minor Changes
