@@ -1,4 +1,4 @@
-import type { Rule, Token } from '@whenis/core';
+import type { IRNode, Rule, Token } from '@whenis/core';
 
 const findTag = (t: Token, kind: string) => t.tags.find(x => x.kind === kind);
 
@@ -263,6 +263,72 @@ export const ukDdMmRangeRule: Rule = {
   },
 };
 
+// Day range with the month written once (GAP-22): "22-25.06", "22-25 червня".
+// d2 must be strictly after d1 — a reversed pair is a typo, not a wrap-around.
+function dayRangeWithMonth(d1: number, d2: number, month: number, year?: number) {
+  if (d1 < 1 || d1 > 31 || d2 < 1 || d2 > 31 || month < 1 || month > 12) return null;
+  if (d2 <= d1) return null;
+  return {
+    type: 'range' as const,
+    start: { type: 'absolute' as const, month, day: d1, ...(year !== undefined ? {year} : {}) },
+    end:   { type: 'absolute' as const, month, day: d2, ...(year !== undefined ? {year} : {}) },
+    convention: 'checkout' as const,
+  };
+}
+
+const DASH = '[-–—]'; // hyphen, en dash, em dash
+const COMPACT_DOT_RANGE_RE = new RegExp(`^(\\d{1,2})${DASH}(\\d{1,2})\\.(\\d{1,2})$`);
+const COMPACT_DAY_RANGE_RE = new RegExp(`^(\\d{1,2})${DASH}(\\d{1,2})$`);
+const LONE_DASH_RE = new RegExp(`^${DASH}$`);
+
+// "22-25.06" — compact day range, month once after the second day.
+export const ukDayRangeDotMonthRule: Rule = {
+  name: 'uk-day-range-dot-month',
+  priority: 100,
+  pattern: [{ kind: 'tag', tag: 'Literal', predicate: (t) => COMPACT_DOT_RANGE_RE.test(t.text) }],
+  produce: (matched) => {
+    const m = (matched[0] as Token).text.match(COMPACT_DOT_RANGE_RE);
+    if (!m) return null;
+    return dayRangeWithMonth(+m[1]!, +m[2]!, +m[3]!);
+  },
+};
+
+// "22-25 червня" — compact day range followed by a month name.
+export const ukDayRangeMonthNameRule: Rule = {
+  name: 'uk-day-range-month-name',
+  priority: 100,
+  pattern: [
+    { kind: 'tag', tag: 'Literal', predicate: (t) => COMPACT_DAY_RANGE_RE.test(t.text) },
+    { kind: 'tag', tag: 'MonthName' },
+  ],
+  produce: (matched) => {
+    const m = (matched[0] as Token).text.match(COMPACT_DAY_RANGE_RE);
+    const monthTag = findTag(matched[1] as Token, 'MonthName');
+    if (!m || !monthTag || monthTag.kind !== 'MonthName') return null;
+    return dayRangeWithMonth(+m[1]!, +m[2]!, monthTag.month);
+  },
+};
+
+// "22 - 25.06" / "22 - 25 червня" — spaced dash variants. By the time this rule
+// runs, the right-hand side has already been reduced to an `absolute` node by
+// uk-dd-mm-date or uk-day-month, so one compound pattern covers both spellings.
+export const ukSpacedDayRangeCompoundRule: Rule = {
+  name: 'uk-spaced-day-range-compound',
+  priority: 100,
+  pattern: [
+    { kind: 'tag', tag: 'Numeral' },
+    { kind: 'tag', tag: 'Literal', predicate: (t) => LONE_DASH_RE.test(t.text) },
+    { kind: 'node', node: 'absolute' },
+  ],
+  produce: (matched) => {
+    const numTag = findTag(matched[0] as Token, 'Numeral');
+    const end = matched[2] as IRNode;
+    if (!numTag || numTag.kind !== 'Numeral' || !Number.isInteger(numTag.value)) return null;
+    if (end.type !== 'absolute' || end.month === undefined || end.day === undefined) return null;
+    return dayRangeWithMonth(numTag.value, end.day, end.month, end.year);
+  },
+};
+
 // "найближчі вихідні" → nearest upcoming Saturday-Sunday pair.
 // Uses the same offset_from trick as naVihidniRule to keep Sat+Sun anchored together.
 export const najblyzchiVihidniRule: Rule = {
@@ -328,6 +394,7 @@ export const vagueMonthRule: Rule = {
 
 export const ukRules: Rule[] = [
   ukDdMmDateRule, ukDdMmRangeRule,
+  ukDayRangeDotMonthRule, ukDayRangeMonthNameRule, ukSpacedDayRangeCompoundRule,
   ukTodayRule, ukTomorrowRule, ukYesterdayRule, ukDayAfterTomorrowRule,
   ukNextWeekdayRule, ukNearestWeekdayRule, ukThisWeekdayRule,
   ukThroughNRule,

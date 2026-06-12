@@ -56,3 +56,61 @@ describe('locale-uk rules', () => {
     );
   });
 });
+
+describe('locale-uk rules — day range with single month (GAP-22)', () => {
+  const parser = createParser({ locales: [uk] });
+
+  it("'22-25.06' → range Jun 22 to Jun 25", () => {
+    const r = parser.parse('22-25.06', { reference: REF, timezone: 'UTC' });
+    expect(r.matches[0]!.candidates[0]).toEqual(
+      expect.objectContaining({ type: 'range', start: '2026-06-22', end: '2026-06-25' })
+    );
+  });
+
+  it("'22 - 25.06' (spaces around dash) → same range", () => {
+    const r = parser.parse('22 - 25.06', { reference: REF, timezone: 'UTC' });
+    expect(r.matches[0]!.candidates[0]).toEqual(
+      expect.objectContaining({ type: 'range', start: '2026-06-22', end: '2026-06-25' })
+    );
+  });
+
+  it("'22-25 червня' → range Jun 22 to Jun 25", () => {
+    const r = parser.parse('22-25 червня', { reference: REF, timezone: 'UTC' });
+    expect(r.matches[0]!.candidates[0]).toEqual(
+      expect.objectContaining({ type: 'range', start: '2026-06-22', end: '2026-06-25' })
+    );
+  });
+
+  it("'22 - 25 червня' (spaces around dash) → same range", () => {
+    const r = parser.parse('22 - 25 червня', { reference: REF, timezone: 'UTC' });
+    expect(r.matches[0]!.candidates[0]).toEqual(
+      expect.objectContaining({ type: 'range', start: '2026-06-22', end: '2026-06-25' })
+    );
+  });
+
+  it("'22–25 червня' (en dash) → same range", () => {
+    const r = parser.parse('22–25 червня', { reference: REF, timezone: 'UTC' });
+    expect(r.matches[0]!.candidates[0]).toEqual(
+      expect.objectContaining({ type: 'range', start: '2026-06-22', end: '2026-06-25' })
+    );
+  });
+
+  it("'1-3 травня' already past → rolls to next year", () => {
+    const r = parser.parse('1-3 травня', { reference: REF, timezone: 'UTC' });
+    expect(r.matches[0]!.candidates[0]).toEqual(
+      expect.objectContaining({ type: 'range', start: '2027-05-01', end: '2027-05-03' })
+    );
+  });
+
+  it("'25-22.06' reversed days → no range candidate", () => {
+    const r = parser.parse('25-22.06', { reference: REF, timezone: 'UTC' });
+    const cand = r.matches[0]?.candidates[0];
+    expect(cand?.type === 'range').toBe(false);
+  });
+
+  it("'на 2 - 3 ночі' still parses as nights, not a day range", () => {
+    const r = parser.parse('на 2 - 3 ночі', { reference: REF, timezone: 'UTC' });
+    const cand = r.matches[0]?.candidates[0];
+    expect(cand?.type === 'range').toBe(false);
+  });
+});
