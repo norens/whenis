@@ -9,6 +9,7 @@ export type IRNode =
   | { type: 'boundary';   unit: 'week' | 'month' | 'year'; edge: 'start' | 'end' }
   | { type: 'offset_from'; base: IRNode; days: number }
   | { type: 'last_weekday_in_month'; weekday: number; month?: number }
+  | { type: 'first_weekday_in_month'; weekday: number; month?: number }
   | { type: 'unresolved'; reason: string };
 
 export interface IRSpan {

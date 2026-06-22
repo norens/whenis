@@ -130,6 +130,32 @@ export const weekendLastOfMonthRule: Rule = {
   },
 };
 
+// "перші вихідні [в/у] [серпня]" — first Saturday-Sunday pair of the named (or current) month.
+export const weekendFirstOfMonthRule: Rule = {
+  name: 'booking-weekend-first-of-month',
+  priority: 82,
+  pattern: [
+    { kind: 'tag', tag: 'Grabber', predicate: (t) => t.tags.some(x => x.kind === 'Grabber' && x.modifier === 'first') },
+    { kind: 'tag', tag: 'Literal', predicate: (t) => /вихідн/i.test(t.text) },
+    { kind: 'tag', tag: 'Connector', predicate: (t) => t.tags.some(x => x.kind === 'Connector' && x.conn === 'in'), optional: true },
+    { kind: 'tag', tag: 'MonthName', optional: true },
+  ],
+  produce: (matched) => {
+    const monthTok = matched[3] as Token | null;
+    const mTag = monthTok?.tags.find(t => t.kind === 'MonthName');
+    const month = mTag && mTag.kind === 'MonthName' ? mTag.month : undefined;
+    const start: IRNode = month !== undefined
+      ? { type: 'first_weekday_in_month', weekday: 6, month }
+      : { type: 'first_weekday_in_month', weekday: 6 };
+    return {
+      type: 'range',
+      start,
+      end:   { type: 'offset_from', base: start, days: 1 },
+      convention: 'checkout',
+    };
+  },
+};
+
 // "після свят" — neither word has a tag in default UA lexicon, both arrive as Literal.
 export const holidayPislyaRule: Rule = {
   name: 'booking-holiday-pislya',
@@ -196,6 +222,7 @@ export const bookingRules: Rule[] = [
   weekendNextRule,
   weekendThisRule,
   weekendLastOfMonthRule,
+  weekendFirstOfMonthRule,
   holidayPislyaRule,
   holidayNaRule,
 ];
@@ -205,6 +232,9 @@ export const bookingTags = new Map<string, Tag[]>([
   ['впродовж', [{ kind: 'Grabber', modifier: 'within' }]],
   ['найближчі', [{ kind: 'Grabber', modifier: 'within' }]],
   ['найближчих', [{ kind: 'Grabber', modifier: 'within' }]],
+  ['перші', [{ kind: 'Grabber', modifier: 'first' }]],
+  ['перших', [{ kind: 'Grabber', modifier: 'first' }]],
+  ['перша', [{ kind: 'Grabber', modifier: 'first' }]],
   ['у', [{ kind: 'Connector', conn: 'in' }]],
   ['в', [{ kind: 'Connector', conn: 'in' }]],
   ['на', [{ kind: 'Connector', conn: 'from' }]],

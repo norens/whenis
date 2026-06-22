@@ -103,3 +103,20 @@ describe('resolve', () => {
     expect(out[0]!.reason).toBe('unsupported_pattern');
   });
 });
+
+const ctx = (iso: string) => ({ reference: new Date(`${iso}T12:00:00`), timezone: 'Europe/Kyiv' });
+
+describe('first_weekday_in_month', () => {
+  it('first Saturday of August 2026 is 2026-08-01', () => {
+    const r = resolve({ type: 'first_weekday_in_month', weekday: 6, month: 8 }, ctx('2026-06-22'));
+    expect(r[0]).toMatchObject({ type: 'date', date: '2026-08-01' });
+  });
+  it('first Saturday of July 2026 is 2026-07-04', () => {
+    const r = resolve({ type: 'first_weekday_in_month', weekday: 6, month: 7 }, ctx('2026-06-22'));
+    expect(r[0]).toMatchObject({ type: 'date', date: '2026-07-04' });
+  });
+  it('defaults to the reference month when month omitted', () => {
+    const r = resolve({ type: 'first_weekday_in_month', weekday: 6 }, ctx('2026-06-22'));
+    expect(r[0]).toMatchObject({ type: 'date', date: '2026-06-06' });
+  });
+});
