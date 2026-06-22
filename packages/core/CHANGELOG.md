@@ -1,5 +1,11 @@
 # @whenis/core
 
+## 0.6.0
+
+### Minor Changes
+
+- [#17](https://github.com/norens/whenis/pull/17) [`0238ae0`](https://github.com/norens/whenis/commit/0238ae0f64ebb24fad6bcb56e328395c39c970c0) Thanks [@norens](https://github.com/norens)! - Add «перші вихідні [місяця]» support: first_weekday_in_month IR node + weekendFirstOfMonthRule.
+
 ## 0.5.0
 
 ### Minor Changes
