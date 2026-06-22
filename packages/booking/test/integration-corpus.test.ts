@@ -83,6 +83,12 @@ const CASES: Case[] = [
   { id: 'lwe/no-month', input: 'останні вихідні', expect: { date: '2026-04-25', end: '2026-04-26' } },
   { id: 'lwe/морфологія', input: 'останніх вихідних травня', expect: { date: '2026-05-30', end: '2026-05-31' } },
 
+  // First weekend (HH-2861 F6)
+  { id: 'fwe/серпня', input: 'перші вихідні серпня', expect: { date: '2026-08-01', end: '2026-08-02' } },
+  { id: 'fwe/в-серпні', input: 'перші вихідні в серпні', expect: { date: '2026-08-01', end: '2026-08-02' } },
+  { id: 'fwe/липня', input: 'перші вихідні липня', expect: { date: '2026-07-04', end: '2026-07-05' } },
+  { id: 'fwe/no-month', input: 'перші вихідні', expect: { date: '2026-04-04', end: '2026-04-05' } },
+
   // Closest weekend
   { id: 'we/найближчі-from-wed', input: 'найближчі вихідні', expect: { date: '2026-05-02', end: '2026-05-03' } },
   { id: 'we/найближчі-from-sat', input: 'найближчі вихідні', today: '2026-05-02', expect: { date: '2026-05-09', end: '2026-05-10' } },
