@@ -114,3 +114,69 @@ describe('locale-uk rules — day range with single month (GAP-22)', () => {
     expect(cand?.type === 'range').toBe(false);
   });
 });
+
+// Day range where both endpoints carry their own month (name or DD.MM), not covered by the
+// single-month range rules.
+describe('locale-uk rules — day range with month on both sides', () => {
+  const parser = createParser({ locales: [uk] });
+  const top = (s: string) => parser.parse(s, { reference: REF, timezone: 'UTC' }).matches[0]?.candidates[0];
+
+  it("'з 26 липня по 28 липня' → inclusive, nights=3 (same as 'з 26 по 28 липня')", () => {
+    expect(top('з 26 липня по 28 липня')).toEqual(
+      expect.objectContaining({ type: 'range', start: '2026-07-26', end: '2026-07-29', nights: 3 })
+    );
+  });
+
+  it("'26 липня по 28 липня' (no leading 'з') → inclusive, nights=3", () => {
+    expect(top('26 липня по 28 липня')).toEqual(
+      expect.objectContaining({ type: 'range', start: '2026-07-26', end: '2026-07-29', nights: 3 })
+    );
+  });
+
+  it("'з 26 липня до 28 липня' → checkout convention, nights=2", () => {
+    expect(top('з 26 липня до 28 липня')).toEqual(
+      expect.objectContaining({ type: 'range', start: '2026-07-26', end: '2026-07-28', nights: 2 })
+    );
+  });
+
+  it("'26 липня - 28 липня' (spaced dash) → checkout convention, nights=2", () => {
+    expect(top('26 липня - 28 липня')).toEqual(
+      expect.objectContaining({ type: 'range', start: '2026-07-26', end: '2026-07-28', nights: 2 })
+    );
+  });
+
+  it("'26 липня – 28 липня' (en dash) → same range", () => {
+    expect(top('26 липня – 28 липня')).toEqual(
+      expect.objectContaining({ type: 'range', start: '2026-07-26', end: '2026-07-28', nights: 2 })
+    );
+  });
+
+  it("'30 липня по 2 серпня' (cross-month) → inclusive, nights=4", () => {
+    expect(top('30 липня по 2 серпня')).toEqual(
+      expect.objectContaining({ type: 'range', start: '2026-07-30', end: '2026-08-03', nights: 4 })
+    );
+  });
+
+  it("'з 26.07 по 28.07' (DD.MM both sides) → inclusive, nights=3", () => {
+    expect(top('з 26.07 по 28.07')).toEqual(
+      expect.objectContaining({ type: 'range', start: '2026-07-26', end: '2026-07-29', nights: 3 })
+    );
+  });
+
+  it("'28 грудня по 3 січня' (cross-year wrap) → end rolls to next year", () => {
+    expect(top('28 грудня по 3 січня')).toEqual(
+      expect.objectContaining({ type: 'range', start: '2026-12-28', end: '2027-01-04', nights: 7 })
+    );
+  });
+
+  it("'28 липня по 26 липня' (same-month reversed) → not a range (typo guard)", () => {
+    expect(top('28 липня по 26 липня')?.type === 'range').toBe(false);
+  });
+
+  // Regression: single-month forms must keep resolving exactly as before.
+  it("'з 26 по 28 липня' (month once) still inclusive nights=3", () => {
+    expect(top('з 26 по 28 липня')).toEqual(
+      expect.objectContaining({ type: 'range', start: '2026-07-26', end: '2026-07-29', nights: 3 })
+    );
+  });
+});

@@ -329,6 +329,64 @@ export const ukSpacedDayRangeCompoundRule: Rule = {
   },
 };
 
+// Range where BOTH endpoints carry their own month (name or DD.MM), e.g. "26 липня по 28 липня",
+// "з 26.07 по 28.07", "30 липня по 2 серпня". Each side has already reduced to an `absolute` node
+// by the time these rules run; the single-month range rules (uk-range-until/through, uk-day-range-*)
+// only cover a month written once.
+function twoAbsoluteRange(
+  start: Token | IRNode | null | undefined,
+  end: Token | IRNode | null | undefined,
+  convention: 'checkout' | 'inclusive',
+): IRNode | null {
+  if (!start || !('type' in start) || start.type !== 'absolute' || start.month === undefined || start.day === undefined) return null;
+  if (!end || !('type' in end) || end.type !== 'absolute' || end.month === undefined || end.day === undefined) return null;
+  // Same calendar month: a non-increasing day pair is a typo, not a wrap-around. Cross-month
+  // (including a Dec→Jan year wrap) is left to the resolver's per-endpoint future-year roll.
+  if (start.month === end.month && start.year === end.year && end.day <= start.day) return null;
+  return { type: 'range', start, end, convention };
+}
+
+const fromConnPred = (t: Token) => t.tags.some(x => x.kind === 'Connector' && x.conn === 'from');
+
+// "(з/від)? <date> до <date>" — both endpoints fully qualified. `до` → checkout convention.
+export const ukRangeUntilTwoAbsoluteRule: Rule = {
+  name: 'uk-range-until-two-absolute',
+  priority: 85,
+  pattern: [
+    { kind: 'tag', tag: 'Connector', predicate: fromConnPred, optional: true },
+    { kind: 'node', node: 'absolute' },
+    { kind: 'tag', tag: 'Connector', predicate: (t) => t.tags.some(x => x.kind === 'Connector' && x.conn === 'to') },
+    { kind: 'node', node: 'absolute' },
+  ],
+  produce: (matched) => twoAbsoluteRange(matched[1], matched[3], 'checkout'),
+};
+
+// "(з/від)? <date> по <date>" — both endpoints fully qualified. `по` → inclusive (end = last night).
+export const ukRangeThroughTwoAbsoluteRule: Rule = {
+  name: 'uk-range-through-two-absolute',
+  priority: 85,
+  pattern: [
+    { kind: 'tag', tag: 'Connector', predicate: fromConnPred, optional: true },
+    { kind: 'node', node: 'absolute' },
+    { kind: 'tag', tag: 'Connector', predicate: (t) => t.tags.some(x => x.kind === 'Connector' && x.conn === 'through') },
+    { kind: 'node', node: 'absolute' },
+  ],
+  produce: (matched) => twoAbsoluteRange(matched[1], matched[3], 'inclusive'),
+};
+
+// "<date> - <date>" — both endpoints fully qualified, joined by a bare dash. Checkout convention,
+// matching uk-dd-mm-range / dayRangeWithMonth.
+export const ukDashTwoAbsoluteRule: Rule = {
+  name: 'uk-dash-two-absolute',
+  priority: 85,
+  pattern: [
+    { kind: 'node', node: 'absolute' },
+    { kind: 'tag', tag: 'Literal', predicate: (t) => LONE_DASH_RE.test(t.text) },
+    { kind: 'node', node: 'absolute' },
+  ],
+  produce: (matched) => twoAbsoluteRange(matched[0], matched[2], 'checkout'),
+};
+
 // "найближчі вихідні" → nearest upcoming Saturday-Sunday pair.
 // Uses the same offset_from trick as naVihidniRule to keep Sat+Sun anchored together.
 export const najblyzchiVihidniRule: Rule = {
@@ -400,6 +458,7 @@ export const ukRules: Rule[] = [
   ukThroughNRule,
   ukUntilEndOfRule,
   ukRangeUntilRule, ukRangeThroughRule,
+  ukRangeUntilTwoAbsoluteRule, ukRangeThroughTwoAbsoluteRule, ukDashTwoAbsoluteRule,
   ukDayMonthRule,
   ukCompoundOrdinalDayMonthRule,
   ukOrdinalDayMonthRule,
