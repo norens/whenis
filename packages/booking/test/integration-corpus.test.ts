@@ -1,4 +1,4 @@
-// Integration smoke harness: 79 representative real-world inputs covering
+// Integration smoke harness: 82 representative real-world inputs covering
 // every IR shape (DD.MM, weekdays, weekend phrases, ranges, windows, durations,
 // vague markers, holiday refs) parsed through the full UA + EN + booking stack.
 // Reference anchor = 2026-04-29 (Wed), tz = Europe/Kyiv.
@@ -161,6 +161,11 @@ const CASES: Case[] = [
   { id: 'gap22/spaced-dot', input: '22 - 25.06', expect: { date: '2026-06-22', end: '2026-06-25' } },
   { id: 'gap22/spaced-month', input: '22 - 25 червня', expect: { date: '2026-06-22', end: '2026-06-25' } },
   { id: 'gap22/past-rolls', input: '1-3 квітня', expect: { date: '2027-04-01', end: '2027-04-03' } },
+
+  // Day range with month on both sides
+  { id: 'two-abs/через-по', input: 'з 26 липня по 28 липня', expect: { date: '2026-07-26', end: '2026-07-29', nights: 3 } },
+  { id: 'two-abs/dash', input: '26 липня - 28 липня', expect: { date: '2026-07-26', end: '2026-07-28', nights: 2 } },
+  { id: 'two-abs/cross-month', input: '30 липня по 2 серпня', expect: { date: '2026-07-30', end: '2026-08-03', nights: 4 } },
 ];
 
 function pickBest(parseResult: ReturnType<typeof parser.parse>) {
@@ -169,7 +174,7 @@ function pickBest(parseResult: ReturnType<typeof parser.parse>) {
   return { match: m, cand: m.candidates[0] ?? null };
 }
 
-describe('integration smoke — 79 real-world inputs through UA+EN+booking', () => {
+describe('integration smoke — 82 real-world inputs through UA+EN+booking', () => {
   for (const c of CASES) {
     it(`[${c.id}] "${c.input}"`, () => {
       const ref = new Date(`${c.today ?? DEFAULT_TODAY}T12:00:00Z`);
